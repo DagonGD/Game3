@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game3", "Game3\Game3\Game3.csproj", "{7EA62314-FC07-43B1-92CC-2B5FA88CE591}"
+EndProject
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "Game3Content", "Game3\Game3Content\Game3Content.contentproj", "{3C14B498-961C-48E0-B52C-368284D9657D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateGameResources", "CreateGameResources\CreateGameResources.csproj", "{0DC06B1D-C9A7-4717-BB6F-11E92804D6E1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7EA62314-FC07-43B1-92CC-2B5FA88CE591}.Debug|x86.ActiveCfg = Debug|x86
+		{7EA62314-FC07-43B1-92CC-2B5FA88CE591}.Debug|x86.Build.0 = Debug|x86
+		{7EA62314-FC07-43B1-92CC-2B5FA88CE591}.Release|x86.ActiveCfg = Release|x86
+		{7EA62314-FC07-43B1-92CC-2B5FA88CE591}.Release|x86.Build.0 = Release|x86
+		{3C14B498-961C-48E0-B52C-368284D9657D}.Debug|x86.ActiveCfg = Debug|x86
+		{3C14B498-961C-48E0-B52C-368284D9657D}.Release|x86.ActiveCfg = Release|x86
+		{0DC06B1D-C9A7-4717-BB6F-11E92804D6E1}.Debug|x86.ActiveCfg = Debug|x86
+		{0DC06B1D-C9A7-4717-BB6F-11E92804D6E1}.Debug|x86.Build.0 = Debug|x86
+		{0DC06B1D-C9A7-4717-BB6F-11E92804D6E1}.Release|x86.ActiveCfg = Release|x86
+		{0DC06B1D-C9A7-4717-BB6F-11E92804D6E1}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
