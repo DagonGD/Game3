@@ -12,7 +12,7 @@ namespace Game3
     /// <summary>
     /// Игрок
     /// </summary>
-    class Player:Unit
+    public class Player:Unit
     {
         public Player(string typeCode, Map map):base(typeCode,map)
         {
