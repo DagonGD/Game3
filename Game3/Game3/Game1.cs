@@ -24,7 +24,7 @@ namespace Game3
         private Settings settings;
         private Map map;
         private FirstPersonCamera camera;
-        private Axies axies;
+        //private Axies axies;
         private GameMap gameMap;
         private Player player;
 // ReSharper restore InconsistentNaming
@@ -67,7 +67,7 @@ namespace Game3
             map.Units.Add(player);
             camera = new FirstPersonCamera(this, player);
 
-            axies=new Axies(this);
+            //axies=new Axies(this);
 
             IsFixedTimeStep = settings.IsFixedTimeStep;
             graphics.SynchronizeWithVerticalRetrace = settings.SynchronizeWithVerticalRetrace;
@@ -128,7 +128,7 @@ namespace Game3
         {
             GraphicsDevice.Clear(new Color(map.FogColor));
 
-            axies.Draw(camera);
+            //axies.Draw(camera);
             gameMap.Draw(camera);
 
             base.Draw(gameTime);

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
@@ -14,10 +15,13 @@ namespace Game3
     /// </summary>
     public class Player:Unit
     {
+        private BoundingSphere _boundingSphere;
+
         public Player(string typeCode, Map map):base(typeCode,map)
         {
-            
+            //_boundingSphere = new BoundingSphere(Position, 0.1f);
         }
+
         /// <summary>
         /// Вывод на экран информации о состоянии игрока
         /// </summary>
@@ -25,6 +29,10 @@ namespace Game3
         public override void Draw(ICamera camera)
         {
             //TODO: Вывод количества жизней и т.д
+            //SpriteBatch spriteBatch=new SpriteBatch(Workarea.Current.Game.GraphicsDevice);
+            //spriteBatch.Begin();
+            //spriteBatch.DrawString(Workarea.Current.Font, "123", new Vector2(0f,0f), new Color(1f,1f,1f));
+            //spriteBatch.End();
         }
 
         /// <summary>
@@ -85,9 +93,25 @@ namespace Game3
             if (state.IsKeyDown(Keys.C))
                 Position += Vector3.Down * seconds * Type.Speed;
 
+            //Проверка столкновений игрока
             if (Map.Intersects(this))
                 Position = oldPosition;
+
             #endregion
+        }
+
+        /// <summary>
+        /// Проверка столкновения игрока с заданным юнитом. Игрок представляется сферой с радиусом 0.1
+        /// </summary>
+        /// <param name="unit">Заданный юнит</param>
+        /// <returns></returns>
+        public override bool Intersects(Unit unit)
+        {
+            if (unit.Type.Model == null || unit == this)
+                return false;
+
+            _boundingSphere = new BoundingSphere(Position, 0.1f);
+            return unit.Intersects(_boundingSphere);
         }
 
         public override string ToString() { return Name; }

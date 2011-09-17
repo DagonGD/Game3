@@ -12,7 +12,7 @@ namespace Game3
     /// Юнит
     /// </summary>
     [Serializable]
-    public class Unit 
+    public class Unit
     {
         #region Конструкторы
         public Unit()
@@ -21,7 +21,7 @@ namespace Game3
         }
 
         public Unit(string typeCode, Map map)
-        {
+        {         
             TypeCode = typeCode;
             Map = map;
             Health = Type.HealthMax;
@@ -106,6 +106,25 @@ namespace Game3
         //}
         #endregion
 
+        #region Вспомогательные свойства
+        private Matrix[] _tramsforms;
+        /// <summary>
+        /// Массив матриц трансфорсации для каждой сетки модели
+        /// </summary>
+        public Matrix[] Transforms
+        {
+            get
+            {
+                if (_tramsforms == null && Type.Model != null)
+                {
+                    _tramsforms = new Matrix[Type.Model.Bones.Count];
+                    Type.Model.CopyAbsoluteBoneTransformsTo(_tramsforms);
+                }
+                return _tramsforms;
+            }
+        }
+        #endregion
+
         #region Методы
         /// <summary>
         /// Нарисовать себя
@@ -125,9 +144,6 @@ namespace Game3
             }
             else
             {
-                Matrix[] transforms = new Matrix[Type.Model.Bones.Count];
-                Type.Model.CopyAbsoluteBoneTransformsTo(transforms);
-
                 foreach (ModelMesh mesh in Type.Model.Meshes)
                 {
                     foreach (BasicEffect effect in mesh.Effects)
@@ -140,7 +156,7 @@ namespace Game3
                         if(Workarea.Current.Settings.EnableDefaultLighting)
                             effect.EnableDefaultLighting();
 
-                        effect.World = transforms[mesh.ParentBone.Index] * Matrix.CreateScale(Type.Scale) *
+                        effect.World = Transforms[mesh.ParentBone.Index] * Matrix.CreateScale(Type.Scale) *
                                         Matrix.CreateRotationX(Angles.X) * Matrix.CreateRotationY(Angles.Y) * Matrix.CreateRotationZ(Angles.Z) *
                                         Matrix.CreateTranslation(Position);
                         effect.View = camera.View;
@@ -228,20 +244,10 @@ namespace Game3
         /// <param name="distance">Расстояние</param>
         public void Step(Unit unit, float distance)
         {
-            Vector3 v = Vector3.Normalize(unit.Position - Position);
-            Position += v*distance;
+            Position += Vector3.Normalize(unit.Position - Position)*distance;
         }
 
-        public BoundingSphere GetBoundingSphere()
-        {
-            BoundingSphere sphere=new BoundingSphere();
-            foreach (var meshe in Type.Model.Meshes)
-            {
-                sphere = BoundingSphere.CreateMerged(sphere, meshe.BoundingSphere);
-            }
-            return sphere;
-        }
-
+        #region Столкновения
         /// <summary>
         /// Проверка столкновения юнита с заданной пирамидой вида
         /// </summary>
@@ -251,9 +257,23 @@ namespace Game3
         {
             if (Type.Model == null)
                 return true;
-            Matrix[] transforms = new Matrix[Type.Model.Bones.Count];
-            Type.Model.CopyAbsoluteBoneTransformsTo(transforms);
-            return Type.Model.Meshes.Any(mesh => boundingFrustum.Intersects(mesh.BoundingSphere.Transform(Matrix.CreateScale(Type.Scale) * Matrix.CreateTranslation(Position))));
+            
+            return Type.Model.Meshes.Any(mesh =>boundingFrustum.Intersects(
+                        mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index]*Matrix.CreateScale(Type.Scale)*Matrix.CreateTranslation(Position))));
+        }
+
+        /// <summary>
+        /// Проверка столкновения юнита с заданной сферой
+        /// </summary>
+        /// <param name="boundingSphere">Сфера</param>
+        /// <returns>Истина если пересекаются</returns>
+        public bool Intersects(BoundingSphere boundingSphere)
+        {
+            if (Type.Model == null)
+                return true;
+
+            return Type.Model.Meshes.Any(mesh => boundingSphere.Intersects(
+                        mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Matrix.CreateScale(Type.Scale) * Matrix.CreateTranslation(Position))));
         }
 
         /// <summary>
@@ -261,20 +281,24 @@ namespace Game3
         /// </summary>
         /// <param name="unit"></param>
         /// <returns></returns>
-        public bool Intersects(Unit unit)
+        public virtual bool Intersects(Unit unit)
         {
-            if (Type.Model == null || unit.Type.Model==null)
+            if (Type.Model == null || unit.Type.Model == null || unit==this)
                 return false;
 
-            Matrix[] transforms = new Matrix[Type.Model.Bones.Count];
-            Type.Model.CopyAbsoluteBoneTransformsTo(transforms);
-
-            Matrix[] transforms1 = new Matrix[unit.Type.Model.Bones.Count];
-            unit.Type.Model.CopyAbsoluteBoneTransformsTo(transforms1);
-
             //Проверка столкновения каждой сферы юнита с каждой сферой заданного юнита
-            return Type.Model.Meshes.Any(mesh => unit.Type.Model.Meshes.Any(mesh1 => mesh.BoundingSphere.Intersects(mesh1.BoundingSphere)));
+            foreach (var mesh in Type.Model.Meshes)
+            {
+                foreach (var mesh1 in unit.Type.Model.Meshes)
+                {
+                    if (mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Matrix.CreateScale(Type.Scale) * Matrix.CreateTranslation(Position)).Intersects(
+                        mesh1.BoundingSphere.Transform(unit.Transforms[mesh1.ParentBone.Index] * Matrix.CreateScale(unit.Type.Scale) * Matrix.CreateTranslation(unit.Position))))
+                        return true;
+                }
+            }
+            return false;
         }
+        #endregion
         #endregion
 
         public override string ToString() { return Name; }

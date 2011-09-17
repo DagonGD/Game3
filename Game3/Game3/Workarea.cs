@@ -30,6 +30,8 @@ namespace Game3
         public Game1 Game { get; set; }
         [XmlIgnore]
         public static Workarea Current;
+        [XmlIgnore]
+        public SpriteFont Font;
         #endregion
 
         #region Сериализация
@@ -65,6 +67,9 @@ namespace Game3
                     type.Model = null;
                 }
             }
+
+            //Загрузка шрифтов
+            workarea.Font = Content.Load<SpriteFont>("Fonts/Courier New");
 
             Current = workarea;
 
