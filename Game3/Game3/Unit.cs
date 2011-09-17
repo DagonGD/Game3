@@ -232,10 +232,19 @@ namespace Game3
             Position += v*distance;
         }
 
+        public BoundingSphere GetBoundingSphere()
+        {
+            BoundingSphere sphere=new BoundingSphere();
+            foreach (var meshe in Type.Model.Meshes)
+            {
+                sphere = BoundingSphere.CreateMerged(sphere, meshe.BoundingSphere);
+            }
+            return sphere;
+        }
+
         /// <summary>
-        /// Проверка столкновения юнита с заданой пирамидой вида
+        /// Проверка столкновения юнита с заданной пирамидой вида
         /// </summary>
-        /// <param name="unit">Юнит</param>
         /// <param name="boundingFrustum">Пирамида вида</param>
         /// <returns>Истина если пересекаются</returns>
         public bool Intersects(BoundingFrustum boundingFrustum)
@@ -245,6 +254,26 @@ namespace Game3
             Matrix[] transforms = new Matrix[Type.Model.Bones.Count];
             Type.Model.CopyAbsoluteBoneTransformsTo(transforms);
             return Type.Model.Meshes.Any(mesh => boundingFrustum.Intersects(mesh.BoundingSphere.Transform(Matrix.CreateScale(Type.Scale) * Matrix.CreateTranslation(Position))));
+        }
+
+        /// <summary>
+        /// Проверка столкновения юнита с заданным
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public bool Intersects(Unit unit)
+        {
+            if (Type.Model == null || unit.Type.Model==null)
+                return false;
+
+            Matrix[] transforms = new Matrix[Type.Model.Bones.Count];
+            Type.Model.CopyAbsoluteBoneTransformsTo(transforms);
+
+            Matrix[] transforms1 = new Matrix[unit.Type.Model.Bones.Count];
+            unit.Type.Model.CopyAbsoluteBoneTransformsTo(transforms1);
+
+            //Проверка столкновения каждой сферы юнита с каждой сферой заданного юнита
+            return Type.Model.Meshes.Any(mesh => unit.Type.Model.Meshes.Any(mesh1 => mesh.BoundingSphere.Intersects(mesh1.BoundingSphere)));
         }
         #endregion
 

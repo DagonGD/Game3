@@ -39,6 +39,7 @@ namespace Game3
                 return;
             }
 
+            #region Angles
             const int turnSpeed = 5;
 
             int centerX = Map.Workarea.Game.GraphicsDevice.Viewport.Width / 2;
@@ -53,7 +54,9 @@ namespace Game3
             float pitch = MathHelper.ToRadians((mouseState.Y - centerY) * seconds * Workarea.Current.Settings.MouseSpeedY);
 
             Angles = new Vector3(MathHelper.Clamp(Angles.X + pitch, MathHelper.ToRadians(-90f), MathHelper.ToRadians(90f)), Angles.Y + yaw, Angles.Z);
+            #endregion
 
+            #region Position
             Vector3 forward = -Vector3.Normalize(new Vector3(
                                              (float)Math.Sin(-Angles.Y) * (float)Math.Cos(Angles.X),
                                              (float)Math.Sin(Angles.X),
@@ -63,6 +66,8 @@ namespace Game3
                                              (float)Math.Cos(Angles.Y),
                                              0f,
                                              (float)Math.Sin(Angles.Y)));
+
+            Vector3 oldPosition=Position;
 
 
             KeyboardState state = Keyboard.GetState();
@@ -79,6 +84,10 @@ namespace Game3
                 Position += Vector3.Up * seconds * Type.Speed;
             if (state.IsKeyDown(Keys.C))
                 Position += Vector3.Down * seconds * Type.Speed;
+
+            if (Map.Intersects(this))
+                Position = oldPosition;
+            #endregion
         }
 
         public override string ToString() { return Name; }

@@ -31,7 +31,7 @@ namespace Game3.Components
                 _fps = _frames;
                 _seconds = 0;
                 _frames = 0;
-                Game.Window.Title = string.Format("fps:{0}, GC(0):{1}", _fps, System.GC.CollectionCount(0));
+                Game.Window.Title = string.Format("fps:{0}, GC(0):{1}, GC(1):{2}, GC(2):{3}", _fps, GC.CollectionCount(0), GC.CollectionCount(1), GC.CollectionCount(2));
             }
         }
 

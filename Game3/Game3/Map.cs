@@ -100,6 +100,16 @@ namespace Game3
                     unit.Draw(camera);
             }
         }
+
+        /// <summary>
+        /// Проверяет пересекает ли заданный юнит хотябы один юнит на карте
+        /// </summary>
+        /// <param name="unit">Заданный юнит</param>
+        public bool Intersects(Unit unit)
+        {
+            return Units.Any(unit.Intersects);
+        }
+
         #endregion
     }
 }
