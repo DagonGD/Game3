@@ -29,9 +29,9 @@ namespace Game3
         public override void Draw(ICamera camera)
         {
             //TODO: Вывод количества жизней и т.д
-            //SpriteBatch spriteBatch=new SpriteBatch(Workarea.Current.Game.GraphicsDevice);
+            //SpriteBatch spriteBatch = new SpriteBatch(Workarea.Current.Game.GraphicsDevice);
             //spriteBatch.Begin();
-            //spriteBatch.DrawString(Workarea.Current.Font, "123", new Vector2(0f,0f), new Color(1f,1f,1f));
+            //spriteBatch.DrawString(Workarea.Current.Font, Health.ToString(), new Vector2(0f, 0f), new Color(1f, 1f, 1f));
             //spriteBatch.End();
         }
 

@@ -58,9 +58,9 @@ namespace CreateGameResources
                                            HealthMax = 300f,
                                            DamageMin = 0f,
                                            DamageMax = 0f,
-                                           Speed = 0f,
-                                           VisibilityRange = 0f,
-                                           AttackRange = 0f,
+                                           Speed = 1f,
+                                           VisibilityRange = 5f,
+                                           AttackRange = 2f,
                                            AttackDelay = 0f,
                                            Scale = 0.001f
                                        });
@@ -84,20 +84,12 @@ namespace CreateGameResources
                 map.Heightmap[i] = r.Next(3) / 10.0f;
             }
 
-            //map.Units.Add(new Unit("PLAYER", map)
-            //                  {
-            //                      Name = "Игрок",
-            //                      Fraction = 1,
-            //                      Position = new Vector3(5f, 1f, 9f),
-            //                      Angles = Vector3.Zero,
-            //                      IsPlayer = true
-            //                  });
             map.Units.Add(new Unit("PLANE1", map)
                               {
                                   Name = "Самолет1",
-                                  Fraction = 0,
+                                  Fraction = 2,
                                   Position = new Vector3(7f, 0.5f, 9f),
-                                  Angles = new Vector3(0f, MathHelper.ToRadians(90f), 0f),
+                                  Angles = new Vector3(0f, 0f, 0f),
                               });
             map.Units.Add(new Unit("HOUSE1", map)
                               {

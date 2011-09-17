@@ -112,6 +112,7 @@ namespace Game3
                 }
                 graphics.IsFullScreen = !graphics.IsFullScreen;
                 graphics.ApplyChanges();
+                camera.UpdateProjection();
             }
             #endregion
 

@@ -9,13 +9,20 @@ namespace Game3.Components
     class FirstPersonCamera:ICamera
     {
         private Unit _unit;
+        private Game _game;
         public FirstPersonCamera(Game game, Unit unit)
         {
             if (unit == null)
                 throw new Exception("Юнит для управления камерой не найден");
             _unit = unit;
+            _game = game;
 
-            Proj = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), game.GraphicsDevice.Viewport.AspectRatio, 0.1f, 100.0f);
+            UpdateProjection();
+        }
+
+        public void UpdateProjection()
+        {
+            Proj = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), _game.GraphicsDevice.Viewport.AspectRatio, 0.1f, 100.0f);
         }
 
         public Matrix View

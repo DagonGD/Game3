@@ -73,8 +73,6 @@ namespace Game3
 
         public float[] Heightmap;
 
-        public override string ToString() { return Name; }
-
         public bool FogEnabled { get; set; }
         public Vector3 FogColor { get; set; }
         #endregion
@@ -102,7 +100,7 @@ namespace Game3
         }
 
         /// <summary>
-        /// Проверяет пересекает ли заданный юнит хотябы один юнит на карте
+        /// Проверяет пересекает ли заданный юнит хотя бы один юнит на карте
         /// </summary>
         /// <param name="unit">Заданный юнит</param>
         public bool Intersects(Unit unit)
@@ -110,6 +108,7 @@ namespace Game3
             return Units.Any(unit.Intersects);
         }
 
+        public override string ToString() { return Name; }
         #endregion
     }
 }

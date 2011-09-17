@@ -187,6 +187,8 @@ namespace Game3
 
                 if (nearestEnemy != null)
                 {
+                    RotateTo(nearestEnemy);
+
                     if (DistanceTo(nearestEnemy) > Type.AttackRange)
                     {
                         //Перемещение
@@ -211,9 +213,18 @@ namespace Game3
         /// </summary>
         /// <param name="unit">Заданный юнит</param>
         /// <returns>Расстояние</returns>
-        public  float DistanceTo(Unit unit)
+        public float DistanceTo(Unit unit)
         {
             return Vector3.Distance(Position, unit.Position);
+        }
+
+        public void RotateTo(Unit unit)
+        {
+            //TODO:Развернуть юнит в сторону цели
+            Vector3 direction = unit.Position - Position;
+            Vector3 angles = new Vector3((float)Math.Acos(direction.X / direction.Length()),
+                (float)Math.Acos(direction.Y / direction.Length()), (float)Math.Acos(direction.Z / direction.Length()));
+            Angles = angles;
         }
 
         /// <summary>
@@ -247,6 +258,8 @@ namespace Game3
             Position += Vector3.Normalize(unit.Position - Position)*distance;
         }
 
+        public override string ToString() { return Name; }
+
         #region Столкновения
         /// <summary>
         /// Проверка столкновения юнита с заданной пирамидой вида
@@ -270,7 +283,7 @@ namespace Game3
         public bool Intersects(BoundingSphere boundingSphere)
         {
             if (Type.Model == null)
-                return true;
+                return false;
 
             return Type.Model.Meshes.Any(mesh => boundingSphere.Intersects(
                         mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Matrix.CreateScale(Type.Scale) * Matrix.CreateTranslation(Position))));
@@ -300,7 +313,5 @@ namespace Game3
         }
         #endregion
         #endregion
-
-        public override string ToString() { return Name; }
     }
 }

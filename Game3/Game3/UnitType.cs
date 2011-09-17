@@ -44,8 +44,8 @@ namespace Game3
         public Model Model { get; set; }//{ get { return _model ?? (_model = Workarea.Current.Game.Content.Load<Model>("Models/" + Code)); }}
         /// <summary>Масштаб</summary>
         public float Scale { get; set; }
+        #endregion
 
         public override string ToString() { return Name; }
-        #endregion
     }
 }
