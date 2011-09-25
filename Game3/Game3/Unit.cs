@@ -220,11 +220,20 @@ namespace Game3
 
         public void RotateTo(Unit unit)
         {
-            //TODO:Развернуть юнит в сторону цели
             Vector3 direction = unit.Position - Position;
-            Vector3 angles = new Vector3((float)Math.Acos(direction.X / direction.Length()),
-                (float)Math.Acos(direction.Y / direction.Length()), (float)Math.Acos(direction.Z / direction.Length()));
-            Angles = angles;
+
+            float angleY = direction.Z < 0 ? 0.0f : (float) Math.PI;
+
+            //TODO:Сделать неточную проверку
+            if (direction.X != 0.0f)
+            {
+                angleY = (float) Math.Atan(direction.Z/direction.X);
+                if (direction.X > 0)
+                    angleY = -angleY - (float) Math.PI/2.0f;
+                else
+                    angleY = -angleY + (float) Math.PI/2.0f;
+            }
+            Angles = new Vector3(Angles.X, angleY, Angles.Z);
         }
 
         /// <summary>
