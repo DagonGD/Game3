@@ -24,17 +24,12 @@ namespace Game3
         }
 
         /// <summary>
-        /// Вывод на экран информации о состоянии игрока
+        /// Ничего не рисовать
         /// </summary>
         /// <param name="camera">Камера</param>
         public override void Draw(ICamera camera)
         {
-            //TODO: Вывод количества жизней и т.д
-            //SpriteBatch spriteBatch = new SpriteBatch(Workarea.Current.Game.GraphicsDevice);
-            //spriteBatch.Begin();
-            //spriteBatch.DrawString(Workarea.Current.Font, Health.ToString(), new Vector2(0f, 0f), new Color(1f, 1f, 1f), 0, new Vector2(0,0), 1f, SpriteEffects.None, 0.5f);
-            //spriteBatch.End();
-            //Workarea.Current.Game.spriteBatch.DrawString(Workarea.Current.Font, Health.ToString(), new Vector2(0f, 0f), new Color(1f, 1f, 1f), 0, new Vector2(0,0), 1f, SpriteEffects.None, 0.5f);
+           
         }
 
         /// <summary>
@@ -90,12 +85,8 @@ namespace Game3
                 Position += left * seconds * Type.Speed;
             if (state.IsKeyDown(Keys.D))
                 Position -= left * seconds * Type.Speed;
-            if (state.IsKeyDown(Keys.Space))
-            {
-                //Position += Vector3.Up * seconds * Type.Speed;
-                if (IsOnGround(Growth))
-                    Impulse += new Vector3(0f, 1f, 0f);
-            }
+            if (state.IsKeyDown(Keys.Space) && IsOnGround(Growth))
+                Impulse += JumpAcceleration;
             if (state.IsKeyDown(Keys.C))
                 Position += Vector3.Down * seconds * Type.Speed;
 

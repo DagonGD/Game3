@@ -58,7 +58,42 @@ namespace Game3
         #endregion
 
         #region Физика
+        public readonly Vector3 JumpAcceleration = new Vector3(0f, 3f, 0f);
+        public readonly Vector3 GravitationalAcceleration =new Vector3(0f,-10f,0f);
+        public const float MaxSafeAcceleration = -4f;
+        public const float GravitationalDamage = 5f;
+        public const float Eps = 0.001f;
         public Vector3 Impulse { get; set; }
+
+        /// <summary>
+        /// Обработка влияния на юнит гравитации и импульса
+        /// </summary>
+        /// <param name="gameTime"></param>
+        /// <param name="growth">Высота, на которой распологается юнит</param>
+        public void UpdatePhysics(GameTime gameTime, float growth)
+        {
+            if (Fraction != 0)
+            {
+                //Если юнит не летающий и находится над землей, то ускорить его падение
+                if (!Type.IsFlyable && !IsOnGround(growth))
+                {
+                    Impulse += GravitationalAcceleration * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                }
+
+                //Осуществить влияние импульса
+                Position += Impulse * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                //Если юнит достиг земли
+                if (IsOnGround(growth))
+                {
+                    //Удар об землю
+                    Position = new Vector3(Position.X, Map.GetHeight(Position.X, Position.Y) + growth, Position.Z);
+                    if (Impulse.Y < MaxSafeAcceleration)
+                        Health += Impulse.Y * GravitationalDamage;
+                    Impulse = Vector3.Zero;
+                }
+            }
+        }
         #endregion
 
         #region Свойства класса
@@ -212,42 +247,12 @@ namespace Game3
         }
 
         /// <summary>
-        /// Обработка влияния на юнит гравитации и импульса
-        /// </summary>
-        /// <param name="gameTime"></param>
-        /// <param name="growth">Высота, на которой распологается юнит</param>
-        public void UpdatePhysics(GameTime gameTime, float growth)
-        {
-            if (Fraction != 0)
-            {
-                //Если юнит не летающий и находится над землей, то ускорить его падение
-                if (!Type.IsFlyable && !IsOnGround(growth))
-                {
-                    Impulse += new Vector3(0f, -0.1f, 0f);
-                }
-
-                //Осуществить влияние импульса
-                Position += Impulse * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-                //Если юнит достиг земли
-                if (IsOnGround(growth))
-                {
-                    //Удар об землю
-                    Position = new Vector3(Position.X, Map.GetHeight(Position.X, Position.Y) + growth, Position.Z);
-                    if(Impulse.Y<-1.5f)
-                        Health += Impulse.Y;
-                    Impulse = Vector3.Zero;
-                }
-            }
-        }
-
-        /// <summary>
         /// Проверка находится ли юнит на земле
         /// </summary>
         /// <returns></returns>
         public bool IsOnGround(float growth)
         {
-            return Position.Y - growth < Map.GetHeight(Position.X, Position.Y)+0.01f;
+            return Position.Y - growth < Map.GetHeight(Position.X, Position.Y) + Eps;
         }
 
         /// <summary>
@@ -270,8 +275,7 @@ namespace Game3
 
             float angleY = direction.Z < 0 ? 0.0f : (float) Math.PI;
 
-            //TODO:Сделать неточную проверку
-            if (direction.X != 0.0f)
+            if (direction.X > Eps)
             {
                 angleY = (float) Math.Atan(direction.Z/direction.X);
                 if (direction.X > 0)
