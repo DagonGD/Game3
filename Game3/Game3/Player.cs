@@ -16,6 +16,7 @@ namespace Game3
     public class Player:Unit
     {
         private BoundingSphere _boundingSphere;
+        public const float Growth = 1.8f;
 
         public Player(string typeCode, Map map):base(typeCode,map)
         {
@@ -31,8 +32,9 @@ namespace Game3
             //TODO: Вывод количества жизней и т.д
             //SpriteBatch spriteBatch = new SpriteBatch(Workarea.Current.Game.GraphicsDevice);
             //spriteBatch.Begin();
-            //spriteBatch.DrawString(Workarea.Current.Font, Health.ToString(), new Vector2(0f, 0f), new Color(1f, 1f, 1f));
+            //spriteBatch.DrawString(Workarea.Current.Font, Health.ToString(), new Vector2(0f, 0f), new Color(1f, 1f, 1f), 0, new Vector2(0,0), 1f, SpriteEffects.None, 0.5f);
             //spriteBatch.End();
+            //Workarea.Current.Game.spriteBatch.DrawString(Workarea.Current.Font, Health.ToString(), new Vector2(0f, 0f), new Color(1f, 1f, 1f), 0, new Vector2(0,0), 1f, SpriteEffects.None, 0.5f);
         }
 
         /// <summary>
@@ -89,7 +91,11 @@ namespace Game3
             if (state.IsKeyDown(Keys.D))
                 Position -= left * seconds * Type.Speed;
             if (state.IsKeyDown(Keys.Space))
-                Position += Vector3.Up * seconds * Type.Speed;
+            {
+                //Position += Vector3.Up * seconds * Type.Speed;
+                if (IsOnGround(Growth))
+                    Impulse += new Vector3(0f, 1f, 0f);
+            }
             if (state.IsKeyDown(Keys.C))
                 Position += Vector3.Down * seconds * Type.Speed;
 
@@ -98,19 +104,21 @@ namespace Game3
                 Position = oldPosition;
 
             #endregion
+
+            UpdatePhysics(gameTime, Growth);
         }
 
         /// <summary>
-        /// Проверка столкновения игрока с заданным юнитом. Игрок представляется сферой с радиусом 0.1
+        /// Проверка столкновения игрока с заданным юнитом. Игрок представляется сферой с радиусом 0.2
         /// </summary>
         /// <param name="unit">Заданный юнит</param>
         /// <returns></returns>
         public override bool Intersects(Unit unit)
         {
-            if (unit.Type.Model == null || unit == this)
+            if (unit == this)
                 return false;
 
-            _boundingSphere = new BoundingSphere(Position, 0.1f);
+            _boundingSphere = new BoundingSphere(Position, 0.2f);
             return unit.Intersects(_boundingSphere);
         }
 

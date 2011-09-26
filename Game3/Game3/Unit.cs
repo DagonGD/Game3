@@ -26,7 +26,7 @@ namespace Game3
             Map = map;
             Health = Type.HealthMax;
             State = 1;
-            IsPlayer = false;
+            Impulse = Vector3.Zero;
         }
         #endregion
 
@@ -45,9 +45,6 @@ namespace Game3
         public Vector3 Angles { get; set; }
         /// <summary>Время последней атаки</summary>
         public double LastAttackTime { get; set; }
-        /// <summary>Является ли юнит игороком</summary>
-        [Obsolete]
-        public bool IsPlayer { get; set; }
         /// <summary>Указатель на карту, на которой расположен юнит</summary>
         [XmlIgnore]
         public Map Map { get; set; }
@@ -58,6 +55,10 @@ namespace Game3
         /// <summary>Тип юнита</summary>
         [XmlIgnore]
         public UnitType Type { get { return _type ?? (_type = Map.Workarea.GetUnitType(TypeCode)); } }
+        #endregion
+
+        #region Физика
+        public Vector3 Impulse { get; set; }
         #endregion
 
         #region Свойства класса
@@ -206,6 +207,47 @@ namespace Game3
                 }
             }
             #endregion
+
+            UpdatePhysics(gameTime, 0.0f);
+        }
+
+        /// <summary>
+        /// Обработка влияния на юнит гравитации и импульса
+        /// </summary>
+        /// <param name="gameTime"></param>
+        /// <param name="growth">Высота, на которой распологается юнит</param>
+        public void UpdatePhysics(GameTime gameTime, float growth)
+        {
+            if (Fraction != 0)
+            {
+                //Если юнит не летающий и находится над землей, то ускорить его падение
+                if (!Type.IsFlyable && !IsOnGround(growth))
+                {
+                    Impulse += new Vector3(0f, -0.1f, 0f);
+                }
+
+                //Осуществить влияние импульса
+                Position += Impulse * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                //Если юнит достиг земли
+                if (IsOnGround(growth))
+                {
+                    //Удар об землю
+                    Position = new Vector3(Position.X, Map.GetHeight(Position.X, Position.Y) + growth, Position.Z);
+                    if(Impulse.Y<-1.5f)
+                        Health += Impulse.Y;
+                    Impulse = Vector3.Zero;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Проверка находится ли юнит на земле
+        /// </summary>
+        /// <returns></returns>
+        public bool IsOnGround(float growth)
+        {
+            return Position.Y - growth < Map.GetHeight(Position.X, Position.Y)+0.01f;
         }
 
         /// <summary>
@@ -218,6 +260,10 @@ namespace Game3
             return Vector3.Distance(Position, unit.Position);
         }
 
+        /// <summary>
+        /// Поворот юнита вокруг оси Y по напрввлению к заданному
+        /// </summary>
+        /// <param name="unit">Заданный юнит</param>
         public void RotateTo(Unit unit)
         {
             Vector3 direction = unit.Position - Position;
@@ -271,12 +317,33 @@ namespace Game3
 
         #region Столкновения
         /// <summary>
+        /// BoundingBox для юнита. Если не задан, то при обработки столконовений будет использована автоматически вычисляемая BoundingSphere
+        /// </summary>
+        public BoundingBox? BoundingBox
+        {
+            get
+            {
+                if (!Type.BoundingBox.HasValue)
+                    return null;
+
+                Matrix transform = Matrix.CreateTranslation(Position)*Matrix.CreateRotationZ(Angles.Z)*
+                                   Matrix.CreateRotationY(Angles.Y)*Matrix.CreateRotationX(Angles.X);
+
+                return new BoundingBox(Vector3.Transform(Type.BoundingBox.Value.Min, transform),
+                                       Vector3.Transform(Type.BoundingBox.Value.Max, transform));
+            }
+        }
+
+        /// <summary>
         /// Проверка столкновения юнита с заданной пирамидой вида
         /// </summary>
         /// <param name="boundingFrustum">Пирамида вида</param>
         /// <returns>Истина если пересекаются</returns>
         public bool Intersects(BoundingFrustum boundingFrustum)
         {
+            if (BoundingBox != null)
+                return boundingFrustum.Intersects(BoundingBox.Value);
+
             if (Type.Model == null)
                 return true;
             
@@ -291,23 +358,36 @@ namespace Game3
         /// <returns>Истина если пересекаются</returns>
         public bool Intersects(BoundingSphere boundingSphere)
         {
-            if (Type.Model == null)
-                return false;
+            if (BoundingBox != null)
+                return BoundingBox.Value.Intersects(boundingSphere);
 
-            return Type.Model.Meshes.Any(mesh => boundingSphere.Intersects(
+            return Type.Model == null ? false : Type.Model.Meshes.Any(mesh => boundingSphere.Intersects(
                         mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Matrix.CreateScale(Type.Scale) * Matrix.CreateTranslation(Position))));
+        }
+
+        public bool Intersects(BoundingBox boundingBox)
+        {
+            if (BoundingBox.HasValue)
+                return BoundingBox.Value.Intersects(boundingBox);
+
+            return Type.Model == null ? false : Type.Model.Meshes.Any(mesh => mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Matrix.CreateScale(Type.Scale) * Matrix.CreateTranslation(Position)).Intersects(boundingBox));
         }
 
         /// <summary>
         /// Проверка столкновения юнита с заданным
         /// </summary>
-        /// <param name="unit"></param>
+        /// <param name="unit">Заданный юнит</param>
         /// <returns></returns>
+        [Obsolete]
         public virtual bool Intersects(Unit unit)
         {
-            if (Type.Model == null || unit.Type.Model == null || unit==this)
+            if (unit == this)
                 return false;
 
+            if (Type.Model == null || unit.Type.Model == null)
+                return false;
+
+            
             //Проверка столкновения каждой сферы юнита с каждой сферой заданного юнита
             foreach (var mesh in Type.Model.Meshes)
             {

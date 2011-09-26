@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Game3
@@ -16,6 +17,7 @@ namespace Game3
         public UnitType()
         {
             Scale = 1f;
+            IsFlyable = false;
         }
 
         #region Свойства
@@ -37,12 +39,21 @@ namespace Game3
         public float AttackRange { get; set; }
         /// <summary>Пауза между атаками</summary>
         public float AttackDelay { get; set; }
+        /// <summary>Может ли юнит летать</summary>
+        public bool IsFlyable { get; set; }
 
+        #region Столкновения
+        /// <summary>
+        /// BoundingBox для класса. Если не задан, то при обработки столконовений будет использована автоматически вычисляемая BoundingSphere
+        /// </summary>
+        public BoundingBox? BoundingBox;
+        #endregion
+        
         //private Model _model;
         /// <summary>Модель</summary>
         [XmlIgnore]
         public Model Model { get; set; }//{ get { return _model ?? (_model = Workarea.Current.Game.Content.Load<Model>("Models/" + Code)); }}
-        /// <summary>Масштаб</summary>
+        /// <summary>Масштаб модели</summary>
         public float Scale { get; set; }
         #endregion
 

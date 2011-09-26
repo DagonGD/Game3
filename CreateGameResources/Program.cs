@@ -25,7 +25,7 @@ namespace CreateGameResources
                                            Speed = 3f,
                                            VisibilityRange = 100f,
                                            AttackRange = 1f,
-                                           AttackDelay = 1f
+                                           AttackDelay = 1f,
                                        });
             workarea.UnitTypes.Add(new UnitType
                                        {
@@ -62,14 +62,15 @@ namespace CreateGameResources
                                            VisibilityRange = 5f,
                                            AttackRange = 2f,
                                            AttackDelay = 0f,
-                                           Scale = 0.001f
+                                           Scale = 0.001f,
+                                           IsFlyable = true
                                        });
             workarea.UnitTypes.Add(new UnitType
                                        {
                                            Name = "Дом",
                                            Code = "HOUSE1",
                                            HealthMax = 300f,
-                                           Scale = 1f
+                                           BoundingBox = new BoundingBox(new Vector3(0f, 0f, -3f), new Vector3(7f, 4.35f, 0f))
                                        });
             workarea.Save(Path.Combine(OutPath, "Workarea.xml"));
             #endregion

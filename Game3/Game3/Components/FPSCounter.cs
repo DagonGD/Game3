@@ -6,9 +6,11 @@ using Microsoft.Xna.Framework;
 
 namespace Game3.Components
 {
+// ReSharper disable InconsistentNaming
     class FPSCounter : DrawableGameComponent
+// ReSharper restore InconsistentNaming
     {
-        int _fps;
+        public int Fps;
         int _frames;
         double _seconds;
         //SpriteBatch _spriteBatch;
@@ -28,10 +30,10 @@ namespace Game3.Components
 
             if (_seconds >= 1)
             {
-                _fps = _frames;
+                Fps = _frames;
                 _seconds = 0;
                 _frames = 0;
-                Game.Window.Title = string.Format("fps:{0}, GC(0):{1}, GC(1):{2}, GC(2):{3}", _fps, GC.CollectionCount(0), GC.CollectionCount(1), GC.CollectionCount(2));
+                //Game.Window.Title = string.Format("fps:{0}, GC(0):{1}, GC(1):{2}, GC(2):{3}", _fps, GC.CollectionCount(0), GC.CollectionCount(1), GC.CollectionCount(2));
             }
         }
 

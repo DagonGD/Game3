@@ -108,6 +108,17 @@ namespace Game3
             return Units.Any(unit.Intersects);
         }
 
+        /// <summary>
+        /// Получение высоты в очке с заданными координатами
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public float GetHeight(float x, float y)
+        {
+            return Heightmap[(int) (x*Width + y)];
+        }
+
         public override string ToString() { return Name; }
         #endregion
     }

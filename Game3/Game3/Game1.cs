@@ -18,7 +18,7 @@ namespace Game3
     public class Game1 : Microsoft.Xna.Framework.Game
     {
 // ReSharper disable InconsistentNaming
-        private GraphicsDeviceManager graphics;
+        private readonly GraphicsDeviceManager graphics;
         private FPSCounter fpsCounter;
         private Workarea workarea;
         private Settings settings;
@@ -27,6 +27,7 @@ namespace Game3
         //private Axies axies;
         private GameMap gameMap;
         private Player player;
+        private Interface Interface;
 // ReSharper restore InconsistentNaming
 
         public Game1()
@@ -45,6 +46,7 @@ namespace Game3
         {
             fpsCounter = new FPSCounter(this);
             Components.Add(fpsCounter);
+
             base.Initialize();
         }
 
@@ -65,7 +67,11 @@ namespace Game3
 
             player = new Player("PLAYER", map){ Fraction = 1, Position = new Vector3(10f,1.8f,15f), Angles = Vector3.Zero};
             map.Units.Add(player);
+            
             camera = new FirstPersonCamera(this, player);
+
+            Interface = new Interface(this, player, fpsCounter);
+            Components.Add(Interface);
 
             //axies=new Axies(this);
 
@@ -128,6 +134,9 @@ namespace Game3
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(new Color(map.FogColor));
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
 
             //axies.Draw(camera);
             gameMap.Draw(camera);

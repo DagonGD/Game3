@@ -113,6 +113,7 @@
     <Compile Include="Components\FPSCounter.cs" />
     <Compile Include="Components\FreeCamera.cs" />
     <Compile Include="Components\GameMap.cs" />
+    <Compile Include="Components\Interface.cs" />
     <Compile Include="ICamera.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Player.cs" />
