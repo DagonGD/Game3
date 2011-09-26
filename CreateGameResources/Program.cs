@@ -57,11 +57,11 @@ namespace CreateGameResources
                                            Code = "PLANE1",
                                            HealthMax = 300f,
                                            DamageMin = 0f,
-                                           DamageMax = 0f,
+                                           DamageMax = 10f,
                                            Speed = 1f,
                                            VisibilityRange = 5f,
                                            AttackRange = 2f,
-                                           AttackDelay = 0f,
+                                           AttackDelay = 1f,
                                            Scale = 0.001f,
                                            IsFlyable = true
                                        });
