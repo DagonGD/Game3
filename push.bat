@@ -1,1 +1,1 @@
-git add . & git commit -am "gravitation" & git push & pause
+git add . & git commit -am "quicksave" & git push & pause
