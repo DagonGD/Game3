@@ -86,15 +86,16 @@ namespace CreateGameResources
                 Width = 50,
                 Height = 50,
                 Depth = 10,
-                Gravity = new Vector3(0f, -1f, 0f),
+                Gravity = new Vector3(0f, -5f, 0f),
 
                 FogEnabled = true,
                 ForStart = 1f,
                 FogEnd = 50f,
-                FogColor = new Vector3(0.5f, 0.5f, 0.5f),
+                FogColor = Color.Black.ToVector3(),
 
+                //nableDefaultLighting = true
                 LightingEnabled = true,
-                DirectionalLight0 = new MapLight{DiffuseColor = Color.Red.ToVector3(), Direction = Vector3.One, Enabled = true, SpecularColor = Color.Red.ToVector3()}
+                DirectionalLight0 = new MapLight { DiffuseColor = Color.Red.ToVector3(), Direction = Vector3.One, Enabled = true, SpecularColor = Color.Red.ToVector3() }
             };
 
             map.Heightmap = new float[(int)(map.Width + 1) * (int)(map.Height + 1)];
@@ -119,6 +120,28 @@ namespace CreateGameResources
                 Position = new Vector3(7f, 0f, 5f),
                 Angles = Vector3.Zero
             });
+            for (int i = 0; i < 5; i++)
+            {
+                for (int j = 0; j < 5; j++)
+                {
+                    map.Units.Add(new Unit("GRAVE1", map)
+                                      {
+                                          Name = "Могила" + i,
+                                          Fraction = 0,
+                                          Position = new Vector3(15f + i * 5, 0f, 15f + j * 5),
+                                          Angles = new Vector3(0f, 0f, 0f)
+                                      });
+                }
+            }
+
+            //map.Units.Add(new Unit("GRAVE1", map)
+            //                          {
+            //                              Name = "Могила",
+            //                              Fraction = 0,
+            //                              Position = Vector3.Zero,
+            //                              Angles = Vector3.Zero
+            //                          });
+
             map.Save(Path.Combine(OutPath, "Maps\\Cemetery.xml"));
         }
 
@@ -183,6 +206,13 @@ namespace CreateGameResources
                                            HealthMax = 300f,
                                            BoundingBox = new BoundingBox(new Vector3(0f, 0f, -3f), new Vector3(7f, 4.35f, 0f))
                                        });
+            workarea.UnitTypes.Add(new UnitType
+                                        {
+                                            Name = "Могила",
+                                            Code = "GRAVE1",
+                                            HealthMax = 300f,
+                                            BoundingBox = new BoundingBox(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.9f, 0.2f, 2.0f))
+                                        });
             workarea.Save(Path.Combine(OutPath, "Workarea.xml"));
             return workarea;
         }

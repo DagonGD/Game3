@@ -288,7 +288,7 @@ namespace Game3
                 if (!Type.BoundingBox.HasValue)
                     return null;
 
-                Matrix transform = Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scales) *
+                Matrix transform = Matrix.CreateTranslation(Position) * Type.World* Matrix.CreateScale(Scales) *
                                    Matrix.CreateRotationZ(Angles.Z)*Matrix.CreateRotationY(Angles.Y)*Matrix.CreateRotationX(Angles.X);
 
                 return new BoundingBox(Vector3.Transform(Type.BoundingBox.Value.Min, transform),
