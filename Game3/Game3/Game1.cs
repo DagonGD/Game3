@@ -30,10 +30,12 @@ namespace Game3
         private Interface Interface;
 // ReSharper restore InconsistentNaming
 
-        public Game1()
+        public Game1(string[] args)
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            //Анализ аргументов командной строки
         }
 
         /// <summary>
@@ -61,14 +63,16 @@ namespace Game3
             workarea.Settings = settings;
             workarea.Game = this;
 
-            map = Map.Load("Map1.xml", workarea);
+            //map = Map.Load("Maps\\City.xml", workarea);
+            map = Map.Load("Maps\\Cemetery.xml", workarea);
             gameMap=new GameMap(this, map);
             gameMap.LoadContent(Content);
 
-            player = new Player("PLAYER", map){ Fraction = 1, Position = new Vector3(10f,1.8f,15f), Angles = Vector3.Zero};
+            player = new Player("PLAYER", map){ Fraction = 1, Position = new Vector3(10f,0f,15f), Angles = Vector3.Zero};
             map.Units.Add(player);
             
             camera = new FirstPersonCamera(this, player);
+            workarea.Camera = camera;
 
             Interface = new Interface(this, player, fpsCounter);
             Components.Add(Interface);

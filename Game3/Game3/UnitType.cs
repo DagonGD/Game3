@@ -16,7 +16,8 @@ namespace Game3
     {
         public UnitType()
         {
-            Scale = 1f;
+            //Scale = 1f;
+            World = Matrix.Identity;
             IsFlyable = false;
         }
 
@@ -38,7 +39,7 @@ namespace Game3
         /// <summary>Дистанция атаки</summary>
         public float AttackRange { get; set; }
         /// <summary>Пауза между атаками</summary>
-        public float AttackDelay { get; set; }
+        public double AttackDelay { get; set; }
         /// <summary>Может ли юнит летать</summary>
         public bool IsFlyable { get; set; }
 
@@ -53,8 +54,10 @@ namespace Game3
         /// <summary>Модель</summary>
         [XmlIgnore]
         public Model Model { get; set; }//{ get { return _model ?? (_model = Workarea.Current.Game.Content.Load<Model>("Models/" + Code)); }}
-        /// <summary>Масштаб модели</summary>
-        public float Scale { get; set; }
+        /// <summary>Мировая матрица модели</summary>
+        public Matrix World { get; set; }
+        ///// <summary>Масштаб модели</summary>
+        //public float Scale { get; set; }
         #endregion
 
         public override string ToString() { return Name; }

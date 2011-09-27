@@ -27,13 +27,14 @@ namespace Game3
             Health = Type.HealthMax;
             State = 1;
             Impulse = Vector3.Zero;
+            Scales = Vector3.One;
         }
         #endregion
 
         #region Свойства юнита
         /// <summary>Личное имя юнита</summary>
         public string Name { get; set; }
-        // <summary>Фракция юнита. Юниты из пртивоположных фракций атакуют друг-друга. Если равно 0, то юнит - декорация.</summary>
+        /// <summary>Фракция юнита. Юниты из пртивоположных фракций атакуют друг-друга. Если равно 0, то юнит - декорация.</summary>
         public int Fraction { get; set; }
         /// <summary>Статус юнита. Если 0 то юнит мертв</summary>
         public int State { get; set; }
@@ -43,6 +44,8 @@ namespace Game3
         public Vector3 Position { get; set; }
         /// <summary>Углы с осями</summary>
         public Vector3 Angles { get; set; }
+        /// <summary>Масштабы</summary>
+        public Vector3 Scales { get; set; }
         /// <summary>Время последней атаки</summary>
         public double LastAttackTime { get; set; }
         /// <summary>Указатель на карту, на которой расположен юнит</summary>
@@ -59,9 +62,8 @@ namespace Game3
 
         #region Физика
         public readonly Vector3 JumpAcceleration = new Vector3(0f, 3f, 0f);
-        public readonly Vector3 GravitationalAcceleration =new Vector3(0f,-10f,0f);
         public const float MaxSafeAcceleration = -4f;
-        public const float GravitationalDamage = 5f;
+        public const float GravitationalDamage = 1f;
         public const float Eps = 0.001f;
         public Vector3 Impulse { get; set; }
 
@@ -69,77 +71,30 @@ namespace Game3
         /// Обработка влияния на юнит гравитации и импульса
         /// </summary>
         /// <param name="gameTime"></param>
-        /// <param name="growth">Высота, на которой распологается юнит</param>
-        public void UpdatePhysics(GameTime gameTime, float growth)
+        public void UpdatePhysics(GameTime gameTime)
         {
             if (Fraction != 0)
             {
                 //Если юнит не летающий и находится над землей, то ускорить его падение
-                if (!Type.IsFlyable && !IsOnGround(growth))
+                if (!Type.IsFlyable && !IsOnGround())
                 {
-                    Impulse += GravitationalAcceleration * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    Impulse += Map.Gravity * (float)gameTime.ElapsedGameTime.TotalSeconds;
                 }
 
                 //Осуществить влияние импульса
                 Position += Impulse * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
                 //Если юнит достиг земли
-                if (IsOnGround(growth))
+                if (IsOnGround())
                 {
                     //Удар об землю
-                    Position = new Vector3(Position.X, Map.GetHeight(Position.X, Position.Y) + growth, Position.Z);
+                    Position = new Vector3(Position.X, Map.GetHeight(Position.X, Position.Z), Position.Z);
                     if (Impulse.Y < MaxSafeAcceleration)
                         Health += Impulse.Y * GravitationalDamage;
                     Impulse = Vector3.Zero;
                 }
             }
         }
-        #endregion
-
-        #region Свойства класса
-        //public float DamageMin
-        //{
-        //    get { return Type.DamageMin; }
-        //}
-
-        //public float DamageMax
-        //{
-        //    get { return Type.DamageMax; }
-        //}
-
-        //public float Speed
-        //{
-        //    get { return Type.Speed; }
-        //}
-
-        //public float VisibilityRange
-        //{
-        //    get { return Type.VisibilityRange; }
-        //}
-
-        //public float AttackRange
-        //{
-        //    get { return Type.AttackRange; }
-        //}
-
-        //public float AttackDelay
-        //{
-        //    get { return Type.AttackDelay; }
-        //}
-
-        //public float Scale
-        //{
-        //    get { return Type.Scale; }
-        //}
-
-        //[XmlIgnore]
-        //public Model Model
-        //{
-        //    get
-        //    {
-        //        return Type.Model;
-        //    }
-        //}
         #endregion
 
         #region Вспомогательные свойства
@@ -185,14 +140,22 @@ namespace Game3
                     foreach (BasicEffect effect in mesh.Effects)
                     {
                         effect.FogEnabled = Map.FogEnabled;
-                        effect.FogStart = Workarea.Current.Settings.ForStart;
-                        effect.FogEnd = Workarea.Current.Settings.FogEnd;
+                        effect.FogStart = Map.ForStart;
+                        effect.FogEnd = Map.FogEnd;
                         effect.FogColor = Map.FogColor;
 
-                        if(Workarea.Current.Settings.EnableDefaultLighting)
+                        effect.LightingEnabled = Map.LightingEnabled;
+                        if(Map.DirectionalLight0!=null)
+                            Map.DirectionalLight0.Fill(effect.DirectionalLight0);
+                        if (Map.DirectionalLight1 != null)
+                            Map.DirectionalLight1.Fill(effect.DirectionalLight1);
+                        if (Map.DirectionalLight2 != null)
+                            Map.DirectionalLight2.Fill(effect.DirectionalLight2);
+
+                        if (Map.EnableDefaultLighting)
                             effect.EnableDefaultLighting();
 
-                        effect.World = Transforms[mesh.ParentBone.Index] * Matrix.CreateScale(Type.Scale) *
+                        effect.World = Transforms[mesh.ParentBone.Index] * Type.World*Matrix.CreateScale(Scales) *
                                         Matrix.CreateRotationX(Angles.X) * Matrix.CreateRotationY(Angles.Y) * Matrix.CreateRotationZ(Angles.Z) *
                                         Matrix.CreateTranslation(Position);
                         effect.View = camera.View;
@@ -209,7 +172,7 @@ namespace Game3
         /// <param name="gameTime"></param>
         public virtual void Update(GameTime gameTime)
         {
-            if (Health < 0)
+            if (Health < Eps)
             {
                 State = 0;
                 Health = 0;
@@ -243,16 +206,16 @@ namespace Game3
             }
             #endregion
 
-            UpdatePhysics(gameTime, 0.0f);
+            UpdatePhysics(gameTime);
         }
 
         /// <summary>
         /// Проверка находится ли юнит на земле
         /// </summary>
         /// <returns></returns>
-        public bool IsOnGround(float growth)
+        public bool IsOnGround()
         {
-            return Position.Y - growth < Map.GetHeight(Position.X, Position.Y) + Eps;
+            return Position.Y < Map.GetHeight(Position.X, Position.Z) + Eps;
         }
 
         /// <summary>
@@ -273,16 +236,11 @@ namespace Game3
         {
             Vector3 direction = unit.Position - Position;
 
-            float angleY = direction.Z < 0 ? 0.0f : (float) Math.PI;
-
-            if (direction.X > Eps)
-            {
-                angleY = (float) Math.Atan(direction.Z/direction.X);
-                if (direction.X > 0)
-                    angleY = -angleY - (float) Math.PI/2.0f;
-                else
-                    angleY = -angleY + (float) Math.PI/2.0f;
-            }
+            float angleY = (float)Math.Atan(direction.Z / direction.X);
+            if (direction.X > 0)
+                angleY = -angleY - (float) Math.PI/2.0f;
+            else
+                angleY = -angleY + (float) Math.PI/2.0f;
             Angles = new Vector3(Angles.X, angleY, Angles.Z);
         }
 
@@ -330,8 +288,8 @@ namespace Game3
                 if (!Type.BoundingBox.HasValue)
                     return null;
 
-                Matrix transform = Matrix.CreateTranslation(Position)*Matrix.CreateRotationZ(Angles.Z)*
-                                   Matrix.CreateRotationY(Angles.Y)*Matrix.CreateRotationX(Angles.X);
+                Matrix transform = Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scales) *
+                                   Matrix.CreateRotationZ(Angles.Z)*Matrix.CreateRotationY(Angles.Y)*Matrix.CreateRotationX(Angles.X);
 
                 return new BoundingBox(Vector3.Transform(Type.BoundingBox.Value.Min, transform),
                                        Vector3.Transform(Type.BoundingBox.Value.Max, transform));
@@ -352,7 +310,7 @@ namespace Game3
                 return true;
             
             return Type.Model.Meshes.Any(mesh =>boundingFrustum.Intersects(
-                        mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index]*Matrix.CreateScale(Type.Scale)*Matrix.CreateTranslation(Position))));
+                        mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index]*Type.World*Matrix.CreateTranslation(Position)*Matrix.CreateScale(Scales))));
         }
 
         /// <summary>
@@ -366,7 +324,7 @@ namespace Game3
                 return BoundingBox.Value.Intersects(boundingSphere);
 
             return Type.Model == null ? false : Type.Model.Meshes.Any(mesh => boundingSphere.Intersects(
-                        mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Matrix.CreateScale(Type.Scale) * Matrix.CreateTranslation(Position))));
+                        mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Type.World * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scales))));
         }
 
         public bool Intersects(BoundingBox boundingBox)
@@ -374,7 +332,7 @@ namespace Game3
             if (BoundingBox.HasValue)
                 return BoundingBox.Value.Intersects(boundingBox);
 
-            return Type.Model == null ? false : Type.Model.Meshes.Any(mesh => mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Matrix.CreateScale(Type.Scale) * Matrix.CreateTranslation(Position)).Intersects(boundingBox));
+            return Type.Model == null ? false : Type.Model.Meshes.Any(mesh => mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Type.World * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scales)).Intersects(boundingBox));
         }
 
         /// <summary>
@@ -382,7 +340,7 @@ namespace Game3
         /// </summary>
         /// <param name="unit">Заданный юнит</param>
         /// <returns></returns>
-        [Obsolete]
+        [Obsolete("Проверяет только столкновения сфер, но не параллелепипедов")]
         public virtual bool Intersects(Unit unit)
         {
             if (unit == this)
@@ -391,18 +349,43 @@ namespace Game3
             if (Type.Model == null || unit.Type.Model == null)
                 return false;
 
-            
             //Проверка столкновения каждой сферы юнита с каждой сферой заданного юнита
             foreach (var mesh in Type.Model.Meshes)
             {
                 foreach (var mesh1 in unit.Type.Model.Meshes)
                 {
-                    if (mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Matrix.CreateScale(Type.Scale) * Matrix.CreateTranslation(Position)).Intersects(
-                        mesh1.BoundingSphere.Transform(unit.Transforms[mesh1.ParentBone.Index] * Matrix.CreateScale(unit.Type.Scale) * Matrix.CreateTranslation(unit.Position))))
+                    if (mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Type.World * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scales)).Intersects(
+                        mesh1.BoundingSphere.Transform(unit.Transforms[mesh1.ParentBone.Index] * Type.World * Matrix.CreateTranslation(unit.Position) * Matrix.CreateScale(Scales))))
                         return true;
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Нахождение расстояния до ближайшего юнита, пересеченного лучем
+        /// </summary>
+        /// <param name="ray">Луч</param>
+        /// <returns>Расстояние</returns>
+        public float? Intersects(Ray ray)
+        {
+            if (BoundingBox.HasValue)
+                return ray.Intersects(BoundingBox.Value);
+
+            if (Type.Model == null)
+                return null;
+
+            float? ret = null;
+
+            foreach (var mesh in Type.Model.Meshes)
+            {
+                float? dist = ray.Intersects(mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Type.World *
+                                                      Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scales)));
+                if (dist != null && (ret == null || dist > ret))
+                    ret = dist;
+            }
+
+            return ret;
         }
         #endregion
         #endregion

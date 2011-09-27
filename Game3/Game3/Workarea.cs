@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -29,9 +30,13 @@ namespace Game3
         [XmlIgnore]
         public Game1 Game { get; set; }
         [XmlIgnore]
+        public ICamera Camera { get; set; }
+        [XmlIgnore]
         public static Workarea Current;
         [XmlIgnore]
         public SpriteFont Font;
+        [XmlIgnore]
+        public SoundEffect Shotgun;
         #endregion
 
         #region Сериализация
@@ -70,6 +75,9 @@ namespace Game3
 
             //Загрузка шрифтов
             workarea.Font = Content.Load<SpriteFont>("Fonts/Courier New");
+
+            //Загрузка звуков
+            workarea.Shotgun = Content.Load<SoundEffect>("Sounds/shotgun");
 
             Current = workarea;
 

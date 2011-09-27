@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace Game3
@@ -16,7 +17,7 @@ namespace Game3
     public class Player:Unit
     {
         private BoundingSphere _boundingSphere;
-        public const float Growth = 1.8f;
+        public const float SphereRadius = 0.5f;
 
         public Player(string typeCode, Map map):base(typeCode,map)
         {
@@ -38,6 +39,12 @@ namespace Game3
         /// <param name="gameTime">Игровое время</param>
         public override void Update(GameTime gameTime)
         {
+            if(Health<=0.0f)
+            {
+                //TODO:Смерть игрока
+                State = 0;
+            }
+
             Form frm = Control.FromHandle(Map.Workarea.Game.Window.Handle) as Form;
             if (!frm.Focused)
             {
@@ -45,8 +52,6 @@ namespace Game3
             }
 
             #region Angles
-            const int turnSpeed = 5;
-
             int centerX = Map.Workarea.Game.GraphicsDevice.Viewport.Width / 2;
             int centerY = Map.Workarea.Game.GraphicsDevice.Viewport.Height / 2;
 
@@ -85,7 +90,7 @@ namespace Game3
                 Position += left * seconds * Type.Speed;
             if (state.IsKeyDown(Keys.D))
                 Position -= left * seconds * Type.Speed;
-            if (state.IsKeyDown(Keys.Space) && IsOnGround(Growth))
+            if (state.IsKeyDown(Keys.Space) && IsOnGround())
                 Impulse += JumpAcceleration;
             if (state.IsKeyDown(Keys.C))
                 Position += Vector3.Down * seconds * Type.Speed;
@@ -96,11 +101,48 @@ namespace Game3
 
             #endregion
 
-            UpdatePhysics(gameTime, Growth);
+            #region Attack
+            //Если левая кнопка нажата и пришло время новой атаки
+            if(mouseState.LeftButton==ButtonState.Pressed && LastAttackTime+Type.AttackDelay<gameTime.TotalGameTime.TotalSeconds)
+            {
+                LastAttackTime = gameTime.TotalGameTime.TotalSeconds;
+                Workarea.Current.Shotgun.Play();
+
+                //Определяем в кого целится игрок
+                int sightX = Map.Workarea.Game.GraphicsDevice.Viewport.Width/2;
+                int sightY = Map.Workarea.Game.GraphicsDevice.Viewport.Height/2;
+
+                Vector3 nearsource = new Vector3((float)sightX, (float)sightY, 0f);
+                Vector3 farsource = new Vector3((float)sightX, (float)sightY, 1f);
+
+                Matrix world = Matrix.CreateTranslation(0, 0, 0);
+
+                Vector3 nearPoint = Map.Workarea.Game.GraphicsDevice.Viewport.Unproject(nearsource,
+                    Map.Workarea.Camera.Proj, Map.Workarea.Camera.View, world);
+
+                Vector3 farPoint = Map.Workarea.Game.GraphicsDevice.Viewport.Unproject(farsource,
+                    Map.Workarea.Camera.Proj, Map.Workarea.Camera.View, world);
+
+                // Create a ray from the near clip plane to the far clip plane.
+                Vector3 direction = farPoint - nearPoint;
+                direction.Normalize();
+                Ray pickRay = new Ray(nearPoint, direction);
+
+                Unit target = Map.Intersects(pickRay);
+
+                //Попал не в декорацию
+                if(target!=null && target.Fraction!=0 && DistanceTo(target)<Type.AttackRange)
+                {
+                    target.Health -= Type.DamageMax;
+                }
+            }
+            #endregion
+
+            UpdatePhysics(gameTime);
         }
 
         /// <summary>
-        /// Проверка столкновения игрока с заданным юнитом. Игрок представляется сферой с радиусом 0.2
+        /// Проверка столкновения игрока с заданным юнитом. Игрок представляется сферой с радиусом SphereRadius
         /// </summary>
         /// <param name="unit">Заданный юнит</param>
         /// <returns></returns>
@@ -109,7 +151,7 @@ namespace Game3
             if (unit == this)
                 return false;
 
-            _boundingSphere = new BoundingSphere(Position, 0.2f);
+            _boundingSphere = new BoundingSphere(Position, SphereRadius);
             return unit.Intersects(_boundingSphere);
         }
 

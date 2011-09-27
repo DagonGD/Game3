@@ -116,6 +116,7 @@
     <Compile Include="Components\Interface.cs" />
     <Compile Include="ICamera.cs" />
     <Compile Include="Map.cs" />
+    <Compile Include="MapLight.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />

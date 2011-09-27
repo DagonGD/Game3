@@ -17,15 +17,13 @@ namespace Game3
         public int ScreenHeight;
         public bool FullScreen;
 
-        public float ForStart;
-        public float FogEnd;
-        public bool EnableDefaultLighting;
-
         public bool IsFixedTimeStep;
         public bool SynchronizeWithVerticalRetrace;
 
         public float MouseSpeedX;
         public float MouseSpeedY;
+
+        public bool DebugMode;
 
         #region Сериализация
         public void Save(string filename)

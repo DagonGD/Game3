@@ -13,7 +13,117 @@ namespace CreateGameResources
         private const string OutPath = @"..\..\..\Game3\Game3\bin\x86\Debug\";
         static void Main(string[] args)
         {
-            #region Workarea
+            Workarea workarea = CreateWorkarea();
+            CreateMapCity(workarea);
+            CreateMapCemetery(workarea);
+            CreateSettings();
+        }
+
+        private static void CreateSettings()
+        {
+            Settings settings = new Settings()
+                                    {
+                                        ScreenWidth = 800,
+                                        ScreenHeight = 600,
+                                        FullScreen = false,
+                                        IsFixedTimeStep = true,
+                                        SynchronizeWithVerticalRetrace = true,
+                                        MouseSpeedX = 4,
+                                        MouseSpeedY = 4,
+                                        DebugMode = true
+                                    };
+            settings.Save(Path.Combine(OutPath, "Settings.xml"));
+        }
+
+        private static void CreateMapCity(Workarea workarea)
+        {
+            Map map = new Map(workarea)
+                          {
+                              Name = "Город",
+                              Width = 50,
+                              Height = 50,
+                              Depth = 10,
+                              Gravity = new Vector3(0f, -9.8f, 0f),
+
+                              FogEnabled = true,
+                              ForStart = 5f,
+                              FogEnd = 50f,
+                              FogColor = new Vector3(0.5f, 0.5f, 0.5f),
+                              
+                              EnableDefaultLighting = true
+                          };
+
+            map.Heightmap = new float[(int)(map.Width + 1) * (int)(map.Height + 1)];
+            Random r = new Random();
+            for (int i = 0; i < (map.Width + 1) * (map.Height + 1); i++)
+            {
+                map.Heightmap[i] = r.Next(3) / 10.0f;
+            }
+            //map.PickUpLandscape((int)map.Width / 2, (int)map.Height / 2, 5f);
+            
+            map.Units.Add(new Unit("PLANE1", map)
+                              {
+                                  Name = "Самолет1",
+                                  Fraction = 2,
+                                  Position = new Vector3(7f, 2.0f, 9f),
+                                  Angles = new Vector3(0f, 0f, 0f),
+                              });
+            map.Units.Add(new Unit("HOUSE1", map)
+                              {
+                                  Name = "Дом1",
+                                  Fraction = 0,
+                                  Position = new Vector3(7f, 0f, 5f),
+                                  Angles = Vector3.Zero
+                              });
+            map.Save(Path.Combine(OutPath, "Maps\\City.xml"));
+        }
+
+        private static void CreateMapCemetery(Workarea workarea)
+        {
+            Map map = new Map(workarea)
+            {
+                Name = "Кладбище",
+                Width = 50,
+                Height = 50,
+                Depth = 10,
+                Gravity = new Vector3(0f, -1f, 0f),
+
+                FogEnabled = true,
+                ForStart = 1f,
+                FogEnd = 50f,
+                FogColor = new Vector3(0.5f, 0.5f, 0.5f),
+
+                LightingEnabled = true,
+                DirectionalLight0 = new MapLight{DiffuseColor = Color.Red.ToVector3(), Direction = Vector3.One, Enabled = true, SpecularColor = Color.Red.ToVector3()}
+            };
+
+            map.Heightmap = new float[(int)(map.Width + 1) * (int)(map.Height + 1)];
+            Random r = new Random();
+            for (int i = 0; i < (map.Width + 1) * (map.Height + 1); i++)
+            {
+                map.Heightmap[i] = r.Next(3) / 10.0f;
+            }
+            //map.PickUpLandscape((int)map.Width / 2, (int)map.Height / 2, 5f);
+
+            map.Units.Add(new Unit("PLANE1", map)
+            {
+                Name = "Самолет1",
+                Fraction = 2,
+                Position = new Vector3(7f, 2.0f, 9f),
+                Angles = new Vector3(0f, 0f, 0f),
+            });
+            map.Units.Add(new Unit("HOUSE1", map)
+            {
+                Name = "Дом1",
+                Fraction = 0,
+                Position = new Vector3(7f, 0f, 5f),
+                Angles = Vector3.Zero
+            });
+            map.Save(Path.Combine(OutPath, "Maps\\Cemetery.xml"));
+        }
+
+        private static Workarea CreateWorkarea()
+        {
             Workarea workarea = new Workarea();
             workarea.UnitTypes.Add(new UnitType
                                        {
@@ -24,7 +134,7 @@ namespace CreateGameResources
                                            DamageMax = 30f,
                                            Speed = 3f,
                                            VisibilityRange = 100f,
-                                           AttackRange = 1f,
+                                           AttackRange = 10f,
                                            AttackDelay = 1f,
                                        });
             workarea.UnitTypes.Add(new UnitType
@@ -55,14 +165,15 @@ namespace CreateGameResources
                                        {
                                            Name = "Самолет",
                                            Code = "PLANE1",
-                                           HealthMax = 300f,
+                                           HealthMax = 100f,
                                            DamageMin = 0f,
                                            DamageMax = 10f,
                                            Speed = 1f,
                                            VisibilityRange = 5f,
                                            AttackRange = 2f,
                                            AttackDelay = 1f,
-                                           Scale = 0.001f,
+                                           //Scale = 0.001f,
+                                           World = Matrix.CreateScale(0.001f)*Matrix.CreateTranslation(0f,1f,0f),
                                            IsFlyable = true
                                        });
             workarea.UnitTypes.Add(new UnitType
@@ -73,52 +184,7 @@ namespace CreateGameResources
                                            BoundingBox = new BoundingBox(new Vector3(0f, 0f, -3f), new Vector3(7f, 4.35f, 0f))
                                        });
             workarea.Save(Path.Combine(OutPath, "Workarea.xml"));
-            #endregion
-
-            #region Map
-            Map map = new Map(workarea) { Name = "Город", Width = 50, Height = 50, Depth = 10, FogEnabled = true, FogColor = new Vector3(0.5f, 0.5f, 0.5f) };
-
-            map.Heightmap = new float[(int)(map.Width + 1) * (int)(map.Height + 1)];
-            Random r = new Random();
-            for (int i = 0; i < (map.Width + 1) * (map.Height + 1); i++)
-            {
-                map.Heightmap[i] = r.Next(3) / 10.0f;
-            }
-
-            map.Units.Add(new Unit("PLANE1", map)
-                              {
-                                  Name = "Самолет1",
-                                  Fraction = 2,
-                                  Position = new Vector3(7f, 0.5f, 9f),
-                                  Angles = new Vector3(0f, 0f, 0f),
-                              });
-            map.Units.Add(new Unit("HOUSE1", map)
-                              {
-                                  Name = "Дом1",
-                                  Fraction = 0,
-                                  Position = new Vector3(7f, 0f, 5f),
-                                  Angles = Vector3.Zero
-                              });
-            map.Save(Path.Combine(OutPath, "Map1.xml"));
-            #endregion
-
-            #region Settings
-
-            Settings settings = new Settings()
-            {
-                ScreenWidth = 800,
-                ScreenHeight = 600,
-                FullScreen = false,
-                ForStart = 5f,
-                FogEnd = 50f,
-                EnableDefaultLighting = true,
-                IsFixedTimeStep = true,
-                SynchronizeWithVerticalRetrace = true,
-                MouseSpeedX = 4,
-                MouseSpeedY = 4
-            };
-            settings.Save(Path.Combine(OutPath, "Settings.xml"));
-            #endregion
+            return workarea;
         }
     }
 }

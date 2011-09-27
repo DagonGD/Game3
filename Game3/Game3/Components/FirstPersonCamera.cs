@@ -10,6 +10,7 @@ namespace Game3.Components
     {
         private Unit _unit;
         private Game _game;
+        public const float Growth = 1.8f;
         public FirstPersonCamera(Game game, Unit unit)
         {
             if (unit == null)
@@ -29,10 +30,15 @@ namespace Game3.Components
         {
             get
             {
-                return Matrix.CreateTranslation(-_unit.Position) *
-                 Matrix.CreateRotationZ(_unit.Angles.Z) *
-                 Matrix.CreateRotationY(_unit.Angles.Y) *
-                 Matrix.CreateRotationX(_unit.Angles.X);
+                Matrix ret= Matrix.CreateTranslation(-_unit.Position)*
+                       Matrix.CreateRotationZ(_unit.Angles.Z)*
+                       Matrix.CreateRotationY(_unit.Angles.Y)*
+                       Matrix.CreateRotationX(_unit.Angles.X);
+                if (_unit.State != 0)
+                    ret *= Matrix.CreateTranslation(new Vector3(0f, -Growth, 0f));
+                else
+                    ret *= Matrix.CreateTranslation(new Vector3(0f, -Growth, 0f)/3f);
+                return ret;
             }
         }
 

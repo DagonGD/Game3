@@ -28,11 +28,20 @@ namespace Game3.Components
             _basicEffect = new BasicEffect(game.GraphicsDevice)
                                             {
                                                 FogEnabled = map.FogEnabled,
-                                                FogStart = map.Workarea.Settings.ForStart,
-                                                FogEnd = map.Workarea.Settings.FogEnd,
+                                                FogStart = map.ForStart,
+                                                FogEnd = map.FogEnd,
                                                 FogColor = map.FogColor,
                                             };
-            if (map.Workarea.Settings.EnableDefaultLighting)
+
+            _basicEffect.LightingEnabled = map.LightingEnabled;
+            if (map.DirectionalLight0 != null)
+                map.DirectionalLight0.Fill(_basicEffect.DirectionalLight0);
+            if (map.DirectionalLight1 != null)
+                map.DirectionalLight1.Fill(_basicEffect.DirectionalLight1);
+            if (map.DirectionalLight2 != null)
+                map.DirectionalLight2.Fill(_basicEffect.DirectionalLight2);
+
+            if (map.EnableDefaultLighting)
                 _basicEffect.EnableDefaultLighting();
 
             CreateVertices();
@@ -65,7 +74,8 @@ namespace Game3.Components
                 for (int j = 0; j < _height; j++)
                 {
                     int index = i * _width + j;
-                    _vertices[index].Position = new Vector3(i, _map.Heightmap[index], j);
+                    //_vertices[index].Position = new Vector3(i, _map.Heightmap[index], j);
+                    _vertices[index].Position = new Vector3(i, _map.GetHeight(i, j), j);
                     _vertices[index].TextureCoordinate = new Vector2((float)i / 4f, (float)j / 4f);
                 }
             }

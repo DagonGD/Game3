@@ -29,13 +29,21 @@ namespace Game3.Components
 
         public override void Draw(GameTime gameTime)
         {
+            float y = 20;
+
             _spriteBatch.Begin();
-            DrawText(string.Format("Health: {0};", _unit.Health.ToString()), new Vector2(0f, 0f));
-            DrawText(string.Format("Pos: {0:F2}; {1:F2}; {2:F2};", _unit.Position.X, _unit.Position.Y,_unit.Position.Z), new Vector2(0f, -20f));
-            DrawText(string.Format("Angles: {0:F2}; {1:F2};", MathHelper.ToDegrees(_unit.Angles.X), MathHelper.ToDegrees(_unit.Angles.Y)), new Vector2(0f, -40f));
-            DrawText(string.Format("Impulse: {0:F2}; {1:F2}; {2:F2};", _unit.Impulse.X, _unit.Impulse.Y, _unit.Impulse.Z), new Vector2(0f, -60f));
+            DrawText(string.Format("Health: {0:F0};", _unit.Health), new Vector2(0f, y-=20));
+            if (Workarea.Current.Settings.DebugMode)
+            {
+                DrawText(string.Format("Pos: {0:F2}; {1:F2}; {2:F2};", _unit.Position.X, _unit.Position.Y, _unit.Position.Z), new Vector2(0f, y -= 20));
+                DrawText(string.Format("Angles: {0:F2}; {1:F2};", MathHelper.ToDegrees(_unit.Angles.X), MathHelper.ToDegrees(_unit.Angles.Y)), new Vector2(0f, y -= 20));
+                DrawText(string.Format("Impulse: {0:F2}; {1:F2}; {2:F2};", _unit.Impulse.X, _unit.Impulse.Y, _unit.Impulse.Z), new Vector2(0f, y -= 20));
+            }
             if(_fpsCounter!=null)
-                DrawText(string.Format("FPS: {0};", _fpsCounter.Fps), new Vector2(0f, -80f));
+                DrawText(string.Format("FPS: {0};", _fpsCounter.Fps), new Vector2(0f, y-=20));
+            if(_unit.State==0)
+                DrawText(string.Format("Dead"), new Vector2(0f, y -= 20));
+            DrawText("X", new Vector2(Workarea.Current.Game.GraphicsDevice.Viewport.Width, Workarea.Current.Game.GraphicsDevice.Viewport.Height)/-2f);
             _spriteBatch.End();
 
             base.Draw(gameTime);
