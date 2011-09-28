@@ -455,7 +455,7 @@ Objects:  {
         }
         UseMipMap: 0
         Filename: "Grave1/Metal_Seamed.jpg"
-        RelativeFilename: "D:\Work\Game\!Content\Grave1\Metal_Seamed.jpg"
+        RelativeFilename: "Grave1\Metal_Seamed.jpg"
     }
     Video: "Video::Stone_Vein_Gray_texture", "Clip" {
         Type: "Clip"
@@ -476,7 +476,7 @@ Objects:  {
         }
         UseMipMap: 0
         Filename: "Grave1/Stone_Vein_Gray.jpg"
-        RelativeFilename: "D:\Work\Game\!Content\Grave1\Stone_Vein_Gray.jpg"
+        RelativeFilename: "Grave1\Stone_Vein_Gray.jpg"
     }
     Texture: "Texture::Metal_Seamed_texture", "" {
         Type: "TextureVideoClip"
@@ -501,7 +501,7 @@ Objects:  {
         }
         Media: "Video::Metal_Seamed_texture"
         FileName: "Grave1/Metal_Seamed.jpg"
-        RelativeFilename: "D:\Work\Game\!Content\Grave1\Metal_Seamed.jpg"
+        RelativeFilename: "Grave1\Metal_Seamed.jpg"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "None"
@@ -530,7 +530,7 @@ Objects:  {
         }
         Media: "Video::Stone_Vein_Gray_texture"
         FileName: "Grave1/Stone_Vein_Gray.jpg"
-        RelativeFilename: "D:\Work\Game\!Content\Grave1\Stone_Vein_Gray.jpg"
+        RelativeFilename: "Grave1\Stone_Vein_Gray.jpg"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "None"

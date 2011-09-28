@@ -91,11 +91,12 @@ namespace CreateGameResources
                 FogEnabled = true,
                 ForStart = 1f,
                 FogEnd = 50f,
-                FogColor = Color.Black.ToVector3(),
+                //FogColor = Color.Black.ToVector3(),
+                FogColor = Color.CornflowerBlue.ToVector3(),
 
-                //nableDefaultLighting = true
-                LightingEnabled = true,
-                DirectionalLight0 = new MapLight { DiffuseColor = Color.Red.ToVector3(), Direction = Vector3.One, Enabled = true, SpecularColor = Color.Red.ToVector3() }
+                EnableDefaultLighting = true
+                //LightingEnabled = true,
+                //DirectionalLight0 = new MapLight { DiffuseColor = Color.Red.ToVector3(), Direction = Vector3.One, Enabled = true, SpecularColor = Color.Red.ToVector3() }
             };
 
             map.Heightmap = new float[(int)(map.Width + 1) * (int)(map.Height + 1)];
@@ -106,13 +107,13 @@ namespace CreateGameResources
             }
             //map.PickUpLandscape((int)map.Width / 2, (int)map.Height / 2, 5f);
 
-            map.Units.Add(new Unit("PLANE1", map)
-            {
-                Name = "Самолет1",
-                Fraction = 2,
-                Position = new Vector3(7f, 2.0f, 9f),
-                Angles = new Vector3(0f, 0f, 0f),
-            });
+            //map.Units.Add(new Unit("PLANE1", map)
+            //{
+            //    Name = "Самолет1",
+            //    Fraction = 2,
+            //    Position = new Vector3(7f, 2.0f, 9f),
+            //    Angles = new Vector3(0f, 0f, 0f),
+            //});
             map.Units.Add(new Unit("HOUSE1", map)
             {
                 Name = "Дом1",
@@ -120,27 +121,27 @@ namespace CreateGameResources
                 Position = new Vector3(7f, 0f, 5f),
                 Angles = Vector3.Zero
             });
-            for (int i = 0; i < 5; i++)
-            {
-                for (int j = 0; j < 5; j++)
-                {
-                    map.Units.Add(new Unit("GRAVE1", map)
-                                      {
-                                          Name = "Могила" + i,
-                                          Fraction = 0,
-                                          Position = new Vector3(15f + i * 5, 0f, 15f + j * 5),
-                                          Angles = new Vector3(0f, 0f, 0f)
-                                      });
-                }
-            }
-
-            //map.Units.Add(new Unit("GRAVE1", map)
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    for (int j = 0; j < 5; j++)
+            //    {
+            //        map.Units.Add(new Unit("GRAVE1", map)
             //                          {
-            //                              Name = "Могила",
+            //                              Name = "Могила" + i,
             //                              Fraction = 0,
-            //                              Position = Vector3.Zero,
-            //                              Angles = Vector3.Zero
+            //                              Position = new Vector3(15f + i * 5, 0f, 15f + j * 5),
+            //                              Angles = new Vector3(0f, MathHelper.ToRadians(-90f), 0f)
             //                          });
+            //    }
+            //}
+
+            map.Units.Add(new Unit("GRAVE1", map)
+                                      {
+                                          Name = "Могила",
+                                          Fraction = 0,
+                                          Position = new Vector3(5f,0f,5f),
+                                          Angles = new Vector3(0f, MathHelper.ToRadians(-90f), 0f)
+                                      });
 
             map.Save(Path.Combine(OutPath, "Maps\\Cemetery.xml"));
         }
