@@ -155,10 +155,12 @@ namespace Game3
                         if (Map.EnableDefaultLighting)
                             effect.EnableDefaultLighting();
 
-                        effect.World = Transforms[mesh.ParentBone.Index]/**Type.World*/*
+                        effect.World = /**Type.World*/
                                        /*Matrix.CreateScale(Scales)*/
-                                       Matrix.CreateRotationZ(Angles.Z)*Matrix.CreateRotationY(Angles.Y)*
-                                       Matrix.CreateRotationX(Angles.X) * Matrix.CreateTranslation(Position);
+                                       Transforms[mesh.ParentBone.Index]*
+                                       Matrix.CreateRotationZ(Angles.X)*Matrix.CreateRotationY(Angles.Y)*
+                                       Matrix.CreateRotationX(Angles.Z)*
+                                       Matrix.CreateTranslation(Position);
                         effect.View = camera.View;
                         effect.Projection = camera.Proj;
                     }
@@ -290,10 +292,11 @@ namespace Game3
                     return null;
 
                 Matrix transform = /*Type.World* Matrix.CreateScale(Scales) **/
-                                   Matrix.CreateRotationZ(Angles.Z) * Matrix.CreateRotationY(Angles.Y) * Matrix.CreateRotationX(Angles.X) * Matrix.CreateTranslation(Position);
+                                   Matrix.CreateRotationZ(Angles.X) * Matrix.CreateRotationY(Angles.Y) * Matrix.CreateRotationX(Angles.Z) * Matrix.CreateTranslation(Position);
 
-                return new BoundingBox(Vector3.Transform(Type.BoundingBox.Value.Min, transform),
+                BoundingBox ret=new BoundingBox(Vector3.Transform(Type.BoundingBox.Value.Min, transform),
                                        Vector3.Transform(Type.BoundingBox.Value.Max, transform));
+                return ret;
             }
         }
 
