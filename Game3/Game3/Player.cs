@@ -90,8 +90,14 @@ namespace Game3
                 Position += left * seconds * Type.Speed;
             if (state.IsKeyDown(Keys.D))
                 Position -= left * seconds * Type.Speed;
-            if (state.IsKeyDown(Keys.Space) && IsOnGround())
-                Impulse += JumpAcceleration;
+            if (state.IsKeyDown(Keys.Space))
+            {
+                if (Type.IsFlyable)
+                    Position += JumpAcceleration * seconds;
+                else
+                    if (IsOnGround())
+                        Impulse += JumpAcceleration;
+            }
             if (state.IsKeyDown(Keys.C))
                 Position += Vector3.Down * seconds * Type.Speed;
 

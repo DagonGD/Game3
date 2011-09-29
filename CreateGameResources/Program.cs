@@ -104,7 +104,7 @@ namespace CreateGameResources
                                         SynchronizeWithVerticalRetrace = true,
                                         MouseSpeedX = 4,
                                         MouseSpeedY = 4,
-                                        DebugMode = true
+                                        DebugMode = false
                                     };
             settings.Save(Path.Combine(OutPath, "Settings.xml"));
             return settings;
