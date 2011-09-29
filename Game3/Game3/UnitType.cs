@@ -16,7 +16,6 @@ namespace Game3
     {
         public UnitType()
         {
-            //Scale = 1f;
             World = Matrix.Identity;
             IsFlyable = false;
         }
@@ -50,14 +49,11 @@ namespace Game3
         public BoundingBox? BoundingBox;
         #endregion
         
-        //private Model _model;
         /// <summary>Модель</summary>
         [XmlIgnore]
-        public Model Model { get; set; }//{ get { return _model ?? (_model = Workarea.Current.Game.Content.Load<Model>("Models/" + Code)); }}
+        public Model Model { get; set; }
         /// <summary>Мировая матрица модели</summary>
         public Matrix World { get; set; }
-        ///// <summary>Масштаб модели</summary>
-        //public float Scale { get; set; }
         #endregion
 
         public override string ToString() { return Name; }

@@ -159,19 +159,17 @@ namespace Game3
                         if (Map.EnableDefaultLighting)
                             effect.EnableDefaultLighting();
 
-                        effect.World = /**Type.World*/
-                                       /*Matrix.CreateScale(Scales)*/
-                                       Transforms[mesh.ParentBone.Index]*
-                                       Matrix.CreateRotationZ(Angles.X)*Matrix.CreateRotationY(Angles.Y)*
-                                       Matrix.CreateRotationX(Angles.Z)*
-                                       Matrix.CreateTranslation(Position);
+                        effect.World = GetResultingTransformation(Transforms[mesh.ParentBone.Index]);
+
                         effect.View = camera.View;
                         effect.Projection = camera.Proj;
                     }
                     mesh.Draw();
                 }
             }
-            DrawBoundingBox(camera);
+
+            //if(Map.Workarea.Settings.DebugMode)
+            //    DrawBoundingBox(camera);
         }
 
         /// <summary>
@@ -251,7 +249,8 @@ namespace Game3
             }
             #endregion
 
-            UpdatePhysics(gameTime);
+            if(Map.Workarea.Settings.DebugMode)
+                UpdatePhysics(gameTime);
         }
 
         /// <summary>
@@ -324,6 +323,22 @@ namespace Game3
 
         #region Столкновения
         /// <summary>
+        /// Получает результирующую мировую матрицу
+        /// </summary>
+        /// <remarks>
+        /// Определяет попядок перемножения матриц
+        /// </remarks>
+        /// <param name="transforms">Дополнительная матрица преобразования для части модели</param>
+        /// <returns>Матрица вида</returns>
+        public Matrix GetResultingTransformation(Matrix transforms)
+        {
+            Matrix ret = Matrix.CreateScale(Scales)*
+                         Matrix.CreateRotationX(Angles.X)*Matrix.CreateRotationY(Angles.Y)*Matrix.CreateRotationZ(Angles.Z)*
+                         transforms*Type.World*Matrix.CreateTranslation(Position);
+            return ret;
+        }
+
+        /// <summary>
         /// BoundingBox для юнита. Если не задан, то при обработки столконовений будет использована автоматически вычисляемая BoundingSphere
         /// </summary>
         public BoundingBox? BoundingBox
@@ -333,11 +348,29 @@ namespace Game3
                 if (!Type.BoundingBox.HasValue)
                     return null;
 
-                Matrix transform = /*Type.World* Matrix.CreateScale(Scales) **/
-                                   Matrix.CreateRotationZ(Angles.Z) * Matrix.CreateRotationY(Angles.Y) * Matrix.CreateRotationX(Angles.X) * Matrix.CreateTranslation(Position);
+                Matrix transform = GetResultingTransformation(Matrix.Identity);
 
-                BoundingBox ret=new BoundingBox(Vector3.Transform(Type.BoundingBox.Value.Min, transform),
+                BoundingBox ret = new BoundingBox(Vector3.Transform(Type.BoundingBox.Value.Min, transform),
                                        Vector3.Transform(Type.BoundingBox.Value.Max, transform));
+                
+                if(ret.Min.X>ret.Max.X) 
+                {
+                    float tmp = ret.Min.X;
+                    ret.Min.X = ret.Max.X;
+                    ret.Max.X = tmp;
+                }
+                if (ret.Min.Y > ret.Max.Y)
+                {
+                    float tmp = ret.Min.Y;
+                    ret.Min.Y = ret.Max.Y;
+                    ret.Max.Y = tmp;
+                }
+                if (ret.Min.Z > ret.Max.Z)
+                {
+                    float tmp = ret.Min.Z;
+                    ret.Min.Z = ret.Max.Z;
+                    ret.Max.Z = tmp;
+                }
                 return ret;
             }
         }
@@ -354,11 +387,9 @@ namespace Game3
 
             if (Type.Model == null)
                 return true;
-            
-            //return Type.Model.Meshes.Any(mesh =>boundingFrustum.Intersects(
-            //            mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index]*Type.World*Matrix.CreateTranslation(Position)*Matrix.CreateScale(Scales))));
+
             return Type.Model.Meshes.Any(mesh => boundingFrustum.Intersects(
-                        mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] /** Type.World*/ * Matrix.CreateTranslation(Position) /** Matrix.CreateScale(Scales)*/)));
+                mesh.BoundingSphere.Transform(GetResultingTransformation(Transforms[mesh.ParentBone.Index]))));
         }
 
         /// <summary>
@@ -371,23 +402,33 @@ namespace Game3
             if (BoundingBox != null)
                 return BoundingBox.Value.Intersects(boundingSphere);
 
-            return Type.Model == null ? false : Type.Model.Meshes.Any(mesh => boundingSphere.Intersects(
-                        mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Matrix.CreateTranslation(Position) /* Matrix.CreateScale(Scales) /* Type.World*/)));
+            return Type.Model == null
+                       ? false
+                       : Type.Model.Meshes.Any(mesh => boundingSphere.Intersects(
+                           mesh.BoundingSphere.Transform(GetResultingTransformation(Transforms[mesh.ParentBone.Index])
+                           )));
         }
 
+        /// <summary>
+        /// Проверка столкновения юнита с заданным параллелепипедом
+        /// </summary>
+        /// <param name="boundingBox">Параллелепипед</param>
+        /// <returns>Истина если пересекаются</returns>
         public bool Intersects(BoundingBox boundingBox)
         {
             if (BoundingBox.HasValue)
                 return BoundingBox.Value.Intersects(boundingBox);
 
-            return Type.Model == null ? false : Type.Model.Meshes.Any(mesh => mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] /* Type.World*/ * Matrix.CreateTranslation(Position) /* Matrix.CreateScale(Scales)*/).Intersects(boundingBox));
+            return Type.Model == null ? false : Type.Model.Meshes.Any(mesh => mesh.BoundingSphere.Transform(
+                GetResultingTransformation(Transforms[mesh.ParentBone.Index])
+                ).Intersects(boundingBox));
         }
 
         /// <summary>
         /// Проверка столкновения юнита с заданным
         /// </summary>
         /// <param name="unit">Заданный юнит</param>
-        /// <returns></returns>
+        /// <returns>Истина если пересекаются</returns>
         [Obsolete("Проверяет только столкновения сфер, но не параллелепипедов")]
         public virtual bool Intersects(Unit unit)
         {
@@ -402,8 +443,8 @@ namespace Game3
             {
                 foreach (var mesh1 in unit.Type.Model.Meshes)
                 {
-                    if (mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Type.World * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scales)).Intersects(
-                        mesh1.BoundingSphere.Transform(unit.Transforms[mesh1.ParentBone.Index] * Type.World * Matrix.CreateTranslation(unit.Position) * Matrix.CreateScale(Scales))))
+                    if (mesh.BoundingSphere.Transform(GetResultingTransformation(Transforms[mesh.ParentBone.Index])).Intersects(
+                        mesh1.BoundingSphere.Transform(unit.GetResultingTransformation(Transforms[mesh1.ParentBone.Index]))))
                         return true;
                 }
             }
@@ -411,7 +452,7 @@ namespace Game3
         }
 
         /// <summary>
-        /// Нахождение расстояния до ближайшего юнита, пересеченного лучем
+        /// Нахождение расстояния до ближайшего части модели, пересеченной лучем
         /// </summary>
         /// <param name="ray">Луч</param>
         /// <returns>Расстояние</returns>
@@ -427,8 +468,8 @@ namespace Game3
 
             foreach (var mesh in Type.Model.Meshes)
             {
-                float? dist = ray.Intersects(mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Type.World *
-                                                      Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scales)));
+                float? dist = ray.Intersects(mesh.BoundingSphere.Transform(GetResultingTransformation(Transforms[mesh.ParentBone.Index])));
+
                 if (dist != null && (ret == null || dist > ret))
                     ret = dist;
             }
