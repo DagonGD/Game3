@@ -139,7 +139,7 @@ namespace CreateGameResources
                                       {
                                           Name = "Могила",
                                           Fraction = 0,
-                                          Position = new Vector3(5f,0f,5f),
+                                          Position = new Vector3(5f,0.5f,5f),
                                           Angles = new Vector3(0f, MathHelper.ToRadians(-90f), 0f)
                                       });
 
@@ -149,6 +149,7 @@ namespace CreateGameResources
         private static Workarea CreateWorkarea()
         {
             Workarea workarea = new Workarea();
+            Workarea.Current = workarea;
             workarea.UnitTypes.Add(new UnitType
                                        {
                                            Name = "Игрок",
@@ -212,7 +213,7 @@ namespace CreateGameResources
                                             Name = "Могила",
                                             Code = "GRAVE1",
                                             HealthMax = 300f,
-                                            BoundingBox = new BoundingBox(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.9f, 0.2f, 2.0f))
+                                            BoundingBox = new BoundingBox(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.9f, 1f, 2.0f))
                                         });
             workarea.Save(Path.Combine(OutPath, "Workarea.xml"));
             return workarea;

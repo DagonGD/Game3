@@ -41,6 +41,8 @@ namespace Game3.Components
             }
             if(_fpsCounter!=null)
                 DrawText(string.Format("FPS: {0};", _fpsCounter.Fps), new Vector2(0f, y-=20));
+            if (_unit.Type.IsFlyable)
+                DrawText(string.Format("Flyable"), new Vector2(0f, y -= 20));
             if(_unit.State==0)
                 DrawText(string.Format("Dead"), new Vector2(0f, y -= 20));
             DrawText("X", new Vector2(Workarea.Current.Game.GraphicsDevice.Viewport.Width, Workarea.Current.Game.GraphicsDevice.Viewport.Height)/-2f);

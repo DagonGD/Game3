@@ -138,6 +138,9 @@ namespace Game3
             }
             #endregion
 
+            if (state.IsKeyDown(Keys.F))
+                Type.IsFlyable ^= true;
+
             UpdatePhysics(gameTime);
         }
 

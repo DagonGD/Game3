@@ -108,7 +108,7 @@ namespace Game3
             if (keyState.IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (keyState.IsKeyDown(Keys.F))
+            if (keyState.IsKeyDown(Keys.Enter))
             {
                 if (!graphics.IsFullScreen)
                 {

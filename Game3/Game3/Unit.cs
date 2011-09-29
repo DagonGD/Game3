@@ -17,7 +17,7 @@ namespace Game3
         #region Конструкторы
         public Unit()
         {
-
+            _basicEffect= new BasicEffect(Workarea.Current.Game.GraphicsDevice) { VertexColorEnabled = true};
         }
 
         public Unit(string typeCode, Map map)
@@ -28,6 +28,8 @@ namespace Game3
             State = 1;
             Impulse = Vector3.Zero;
             Scales = Vector3.One;
+            if (Workarea.Current.Game!=null)
+                _basicEffect = new BasicEffect(Workarea.Current.Game.GraphicsDevice) { VertexColorEnabled = true };
         }
         #endregion
 
@@ -114,6 +116,8 @@ namespace Game3
                 return _tramsforms;
             }
         }
+
+        private readonly BasicEffect _basicEffect;
         #endregion
 
         #region Методы
@@ -166,6 +170,44 @@ namespace Game3
                     }
                     mesh.Draw();
                 }
+            }
+            DrawBoundingBox(camera);
+        }
+
+        /// <summary>
+        /// Отрисовка ограничивающего параллелепипеда
+        /// </summary>
+        /// <param name="camera"></param>
+        public void DrawBoundingBox(ICamera camera)
+        {
+            if(!BoundingBox.HasValue)
+                   return;
+
+            VertexPositionColor[] vertexData = new VertexPositionColor[12];
+            vertexData[0] = new VertexPositionColor(BoundingBox.Value.Min, Color.Red);
+            vertexData[1] = new VertexPositionColor(new Vector3(BoundingBox.Value.Max.X, BoundingBox.Value.Min.Y, BoundingBox.Value.Min.Z), Color.Red);
+
+            vertexData[2] = new VertexPositionColor(BoundingBox.Value.Min, Color.Green);
+            vertexData[3] = new VertexPositionColor(new Vector3(BoundingBox.Value.Min.X, BoundingBox.Value.Max.Y, BoundingBox.Value.Min.Z), Color.Green);
+
+            vertexData[4] = new VertexPositionColor(BoundingBox.Value.Min, Color.Blue);
+            vertexData[5] = new VertexPositionColor(new Vector3(BoundingBox.Value.Min.X, BoundingBox.Value.Min.Y, BoundingBox.Value.Max.Z), Color.Blue);
+
+            vertexData[6] = new VertexPositionColor(BoundingBox.Value.Max, Color.Red);
+            vertexData[7] = new VertexPositionColor(new Vector3(BoundingBox.Value.Min.X, BoundingBox.Value.Max.Y, BoundingBox.Value.Max.Z), Color.Red);
+
+            vertexData[8] = new VertexPositionColor(BoundingBox.Value.Max, Color.Green);
+            vertexData[9] = new VertexPositionColor(new Vector3(BoundingBox.Value.Max.X, BoundingBox.Value.Min.Y, BoundingBox.Value.Max.Z), Color.Green);
+
+            vertexData[10] = new VertexPositionColor(BoundingBox.Value.Max, Color.Blue);
+            vertexData[11] = new VertexPositionColor(new Vector3(BoundingBox.Value.Max.X, BoundingBox.Value.Max.Y, BoundingBox.Value.Min.Z), Color.Blue);
+
+            _basicEffect.View = camera.View;
+            _basicEffect.Projection = camera.Proj;
+            foreach (var pass in _basicEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                Map.Workarea.Game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertexData, 0, 6);
             }
         }
 
@@ -292,7 +334,7 @@ namespace Game3
                     return null;
 
                 Matrix transform = /*Type.World* Matrix.CreateScale(Scales) **/
-                                   Matrix.CreateRotationZ(Angles.X) * Matrix.CreateRotationY(Angles.Y) * Matrix.CreateRotationX(Angles.Z) * Matrix.CreateTranslation(Position);
+                                   Matrix.CreateRotationZ(Angles.Z) * Matrix.CreateRotationY(Angles.Y) * Matrix.CreateRotationX(Angles.X) * Matrix.CreateTranslation(Position);
 
                 BoundingBox ret=new BoundingBox(Vector3.Transform(Type.BoundingBox.Value.Min, transform),
                                        Vector3.Transform(Type.BoundingBox.Value.Max, transform));
@@ -330,7 +372,7 @@ namespace Game3
                 return BoundingBox.Value.Intersects(boundingSphere);
 
             return Type.Model == null ? false : Type.Model.Meshes.Any(mesh => boundingSphere.Intersects(
-                        mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Type.World * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scales))));
+                        mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Matrix.CreateTranslation(Position) /* Matrix.CreateScale(Scales) /* Type.World*/)));
         }
 
         public bool Intersects(BoundingBox boundingBox)
@@ -338,7 +380,7 @@ namespace Game3
             if (BoundingBox.HasValue)
                 return BoundingBox.Value.Intersects(boundingBox);
 
-            return Type.Model == null ? false : Type.Model.Meshes.Any(mesh => mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] * Type.World * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scales)).Intersects(boundingBox));
+            return Type.Model == null ? false : Type.Model.Meshes.Any(mesh => mesh.BoundingSphere.Transform(Transforms[mesh.ParentBone.Index] /* Type.World*/ * Matrix.CreateTranslation(Position) /* Matrix.CreateScale(Scales)*/).Intersects(boundingBox));
         }
 
         /// <summary>

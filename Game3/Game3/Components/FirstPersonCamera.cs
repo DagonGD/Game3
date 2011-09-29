@@ -30,14 +30,13 @@ namespace Game3.Components
         {
             get
             {
-                Matrix ret= Matrix.CreateTranslation(-_unit.Position)*
-                       Matrix.CreateRotationZ(_unit.Angles.Z)*
-                       Matrix.CreateRotationY(_unit.Angles.Y)*
-                       Matrix.CreateRotationX(_unit.Angles.X);
-                if (_unit.State != 0)
-                    ret *= Matrix.CreateTranslation(new Vector3(0f, -Growth, 0f));
-                else
-                    ret *= Matrix.CreateTranslation(new Vector3(0f, -Growth, 0f)/3f);
+                Matrix ret = (_unit.State != 0
+                                 ? Matrix.CreateTranslation(new Vector3(0f, -Growth, 0f))//Live
+                                 : Matrix.CreateTranslation(new Vector3(0f, -Growth, 0f)/3f))*//Dead
+                                   Matrix.CreateTranslation(-_unit.Position)*
+                                   Matrix.CreateRotationZ(_unit.Angles.Z)*
+                                   Matrix.CreateRotationY(_unit.Angles.Y)*
+                                   Matrix.CreateRotationX(_unit.Angles.X);
                 return ret;
             }
         }
