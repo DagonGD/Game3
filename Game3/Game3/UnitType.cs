@@ -18,6 +18,7 @@ namespace Game3
         {
             World = Matrix.Identity;
             IsFlyable = false;
+            IsBreakable = true;
         }
 
         #region Свойства
@@ -41,6 +42,8 @@ namespace Game3
         public double AttackDelay { get; set; }
         /// <summary>Может ли юнит летать</summary>
         public bool IsFlyable { get; set; }
+        /// <summary>Подвержен ли юнит урону</summary>
+        public bool IsBreakable { get; set; }
 
         #region Столкновения
         /// <summary>

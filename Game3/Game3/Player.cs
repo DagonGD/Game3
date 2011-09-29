@@ -130,10 +130,11 @@ namespace Game3
 
                 Unit target = Map.Intersects(pickRay);
 
-                //Попал не в декорацию
-                if(target!=null && target.Fraction!=0 && DistanceTo(target)<Type.AttackRange)
+                //Попал
+                if(target!=null && target.Type.IsBreakable && DistanceTo(target)<Type.AttackRange)
                 {
-                    target.Health -= Type.DamageMax;
+                    Random random=new Random();
+                    target.Health -= random.Next((int)Type.DamageMin, (int)Type.DamageMax);
                 }
             }
             #endregion

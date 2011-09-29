@@ -168,8 +168,8 @@ namespace Game3
                 }
             }
 
-            //if(Map.Workarea.Settings.DebugMode)
-            //    DrawBoundingBox(camera);
+            if(Map.Workarea.Settings.DebugMode)
+                DrawBoundingBox(camera);
         }
 
         /// <summary>
@@ -382,8 +382,8 @@ namespace Game3
         /// <returns>Истина если пересекаются</returns>
         public bool Intersects(BoundingFrustum boundingFrustum)
         {
-            if (BoundingBox != null)
-                return boundingFrustum.Intersects(BoundingBox.Value);
+            //if (BoundingBox != null)
+            //    return boundingFrustum.Intersects(BoundingBox.Value);
 
             if (Type.Model == null)
                 return true;

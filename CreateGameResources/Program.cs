@@ -29,10 +29,10 @@ namespace CreateGameResources
                 Name = "Игрок",
                 Code = "PLAYER",
                 HealthMax = 100f,
-                DamageMin = 1f,
+                DamageMin = 20f,
                 DamageMax = 30f,
                 Speed = 3f,
-                VisibilityRange = 100f,
+                VisibilityRange = 10f,
                 AttackRange = 10f,
                 AttackDelay = 1f,
             });
@@ -44,7 +44,7 @@ namespace CreateGameResources
                 DamageMin = 1f,
                 DamageMax = 30f,
                 Speed = 0.1f,
-                VisibilityRange = 100f,
+                VisibilityRange = 10f,
                 AttackRange = 1f,
                 AttackDelay = 1f
             });
@@ -79,6 +79,7 @@ namespace CreateGameResources
                 Name = "Дом",
                 Code = "HOUSE1",
                 HealthMax = 300f,
+                IsBreakable = false,
                 BoundingBox = new BoundingBox(new Vector3(0f, 0f, -3f), new Vector3(7f, 4.35f, 0f))
             });
             workarea.UnitTypes.Add(new UnitType
@@ -168,9 +169,9 @@ namespace CreateGameResources
                 FogColor = Color.Black.ToVector3(),
                 //FogColor = Color.CornflowerBlue.ToVector3(),
 
-                //EnableDefaultLighting = true
-                LightingEnabled = true,
-                DirectionalLight0 = new MapLight { DiffuseColor = Color.Red.ToVector3(), Direction = Vector3.One, Enabled = true, SpecularColor = Color.Red.ToVector3() }
+                EnableDefaultLighting = true
+                //LightingEnabled = true,
+                //DirectionalLight0 = new MapLight { DiffuseColor = Color.Red.ToVector3(), Direction = Vector3.One, Enabled = true, SpecularColor = Color.Red.ToVector3() }
             };
 
             map.Heightmap = new float[(int)(map.Width + 1) * (int)(map.Height + 1)];
@@ -196,16 +197,20 @@ namespace CreateGameResources
                 Position = new Vector3(7f, 0f, 5f),
                 Angles = Vector3.Zero
             });
+
             for (int i = 0; i < 5; i++)
             {
                 for (int j = 0; j < 5; j++)
                 {
                     map.Units.Add(new Unit("GRAVE1", map)
                     {
-                        Name = "Могила" + i,
+                        Name = "Могила" + i*5+j,
                         Fraction = 0,
                         Position = new Vector3(15f + i * 5, 0f, 15f + j * 5),
-                        Angles = new Vector3(0f, MathHelper.ToRadians(-90f), 0f)
+                        //Angles = new Vector3(0f, MathHelper.ToRadians(-90f), 0f),
+                        Angles = new Vector3((float)r.NextDouble()/5-0.1f, (float)r.NextDouble()/5-0.1f-(float)Math.PI/2f, (float)r.NextDouble()/5-0.1f),
+                        Scales = new Vector3((float)r.NextDouble()+0.5f, (float)r.NextDouble()+0.5f, (float)r.NextDouble()+0.5f)
+                        
                     });
                 }
             }
