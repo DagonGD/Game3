@@ -210,14 +210,14 @@ namespace CreateGameResources
             }
             //map.PickUpLandscape((int)map.Width / 2, (int)map.Height / 2, 5f);
 
-            map.Units.Add(new Unit("PLANE1", map)
-            {
-                Name = "Самолет1",
-                Fraction = 2,
-                Position = new Vector3(7f, 2.0f, 9f),
-                Angles = new Vector3(0f, 0f, 0f),
-                //Scales = new Vector3(10f,10f,10f)
-            });
+            //map.Units.Add(new Unit("PLANE1", map)
+            //{
+            //    Name = "Самолет1",
+            //    Fraction = 2,
+            //    Position = new Vector3(7f, 2.0f, 9f),
+            //    Angles = new Vector3(0f, 0f, 0f),
+            //    //Scales = new Vector3(10f,10f,10f)
+            //});
             map.Units.Add(new Unit("HOUSE1", map)
             {
                 Name = "Дом1",
