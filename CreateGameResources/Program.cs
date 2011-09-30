@@ -19,6 +19,23 @@ namespace CreateGameResources
             CreateMapCemetery(workarea);
         }
 
+        private static Settings CreateSettings()
+        {
+            Settings settings = new Settings()
+            {
+                ScreenWidth = 800,
+                ScreenHeight = 600,
+                FullScreen = false,
+                IsFixedTimeStep = true,
+                SynchronizeWithVerticalRetrace = true,
+                MouseSpeedX = 4,
+                MouseSpeedY = 4,
+                DebugMode = true
+            };
+            settings.Save(Path.Combine(OutPath, "Settings.xml"));
+            return settings;
+        }
+
         private static Workarea CreateWorkarea(Settings settings)
         {
             Workarea workarea = new Workarea {Settings = settings};
@@ -76,6 +93,34 @@ namespace CreateGameResources
             });
             workarea.UnitTypes.Add(new UnitType
             {
+                Name = "Призрак1",
+                Code = "GHOST1",
+                HealthMax = 70f,
+                DamageMin = 0f,
+                DamageMax = 15f,
+                Speed = 1f,
+                VisibilityRange = 5f,
+                AttackRange = 2f,
+                AttackDelay = 3f,
+                //World = Matrix.CreateScale(0.001f)/*Matrix.CreateRotationY((float)(-Math.PI/2))*/* Matrix.CreateTranslation(0f, 1f, 0f),
+                IsFlyable = true
+            });
+            workarea.UnitTypes.Add(new UnitType
+            {
+                Name = "Призрак2",
+                Code = "GHOST2",
+                HealthMax = 100f,
+                DamageMin = 0f,
+                DamageMax = 30f,
+                Speed = 2f,
+                VisibilityRange = 7f,
+                AttackRange = 3f,
+                AttackDelay = 3f,
+                //World = Matrix.CreateScale(0.001f)/*Matrix.CreateRotationY((float)(-Math.PI/2))*/* Matrix.CreateTranslation(0f, 1f, 0f),
+                IsFlyable = true
+            });
+            workarea.UnitTypes.Add(new UnitType
+            {
                 Name = "Дом",
                 Code = "HOUSE1",
                 HealthMax = 300f,
@@ -87,29 +132,12 @@ namespace CreateGameResources
                 Name = "Могила",
                 Code = "GRAVE1",
                 HealthMax = 300f,
-                BoundingBox = new BoundingBox(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.9f, 1f, 2.0f))
+                BoundingBox = new BoundingBox(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.9f, 1f, 0.3f))
             });
             workarea.Save(Path.Combine(OutPath, "Workarea.xml"));
             return workarea;
         }
-
-        private static Settings CreateSettings()
-        {
-            Settings settings = new Settings()
-                                    {
-                                        ScreenWidth = 800,
-                                        ScreenHeight = 600,
-                                        FullScreen = false,
-                                        IsFixedTimeStep = true,
-                                        SynchronizeWithVerticalRetrace = true,
-                                        MouseSpeedX = 4,
-                                        MouseSpeedY = 4,
-                                        DebugMode = false
-                                    };
-            settings.Save(Path.Combine(OutPath, "Settings.xml"));
-            return settings;
-        }
-
+        
         private static void CreateMapCity(Workarea workarea)
         {
             Map map = new Map(workarea)
@@ -169,9 +197,9 @@ namespace CreateGameResources
                 FogColor = Color.Black.ToVector3(),
                 //FogColor = Color.CornflowerBlue.ToVector3(),
 
-                EnableDefaultLighting = true
-                //LightingEnabled = true,
-                //DirectionalLight0 = new MapLight { DiffuseColor = Color.Red.ToVector3(), Direction = Vector3.One, Enabled = true, SpecularColor = Color.Red.ToVector3() }
+                //EnableDefaultLighting = true
+                LightingEnabled = true,
+                DirectionalLight0 = new MapLight { DiffuseColor = Color.Red.ToVector3(), Direction = Vector3.One, Enabled = true, SpecularColor = Color.Red.ToVector3() }
             };
 
             map.Heightmap = new float[(int)(map.Width + 1) * (int)(map.Height + 1)];
@@ -204,26 +232,25 @@ namespace CreateGameResources
                 {
                     map.Units.Add(new Unit("GRAVE1", map)
                     {
-                        Name = "Могила" + i*5+j,
+                        Name = "Могила" + (i * 5 + j).ToString("G"),
                         Fraction = 0,
                         Position = new Vector3(15f + i * 5, 0f, 15f + j * 5),
-                        //Angles = new Vector3(0f, MathHelper.ToRadians(-90f), 0f),
-                        Angles = new Vector3((float)r.NextDouble()/5-0.1f, (float)r.NextDouble()/5-0.1f-(float)Math.PI/2f, (float)r.NextDouble()/5-0.1f),
-                        Scales = new Vector3((float)r.NextDouble()+0.5f, (float)r.NextDouble()+0.5f, (float)r.NextDouble()+0.5f)
-                        
+                        Angles = new Vector3((float)r.NextDouble() / 5 - 0.1f, (float)r.NextDouble() / 5 - 0.1f - (float)Math.PI / 2f, (float)r.NextDouble() / 5 - 0.1f),
+                        Scales = new Vector3((float)r.NextDouble() + 0.5f, (float)r.NextDouble() + 0.5f, (float)r.NextDouble() + 0.5f)
                     });
                 }
             }
 
-            //map.Units.Add(new Unit("GRAVE1", map)
-            //{
-            //    Name = "Могила",
-            //    Fraction = 0,
-            //    Position = new Vector3(5f,0f,5f),
-            //    Angles = new Vector3(0f, MathHelper.ToRadians(90f), 0f)//,
-            //    //Scales = new Vector3(1f, 2f, 1f)
-            //});
-
+            for (int i = 0; i < 10; i++)
+            {
+                map.Units.Add(new Unit("GHOST"+r.Next(1,3), map)
+                {
+                    Name = "Призрак"+i,
+                    Fraction = 2,
+                    Position = new Vector3((float)r.NextDouble()*map.Width, (float)r.NextDouble()*5f, (float)r.NextDouble()*map.Height)
+                });
+            }
+            
             map.Save(Path.Combine(OutPath, "Maps\\Cemetery.xml"));
         }
     }

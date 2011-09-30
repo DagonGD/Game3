@@ -243,6 +243,10 @@ namespace Game3
                             //Атака
                             LastAttackTime = gameTime.TotalGameTime.TotalSeconds;
                             nearestEnemy.Health -= Type.DamageMax;
+
+                            //TODO:Убрать
+                            if(TypeCode=="GHOST1" || TypeCode=="GHOST2")
+                                Map.Workarea.Ghost.Play();
                         }
                     }
                 }
@@ -282,9 +286,9 @@ namespace Game3
 
             float angleY = (float)Math.Atan(direction.Z / direction.X);
             if (direction.X > 0)
-                angleY = -angleY - (float) Math.PI/2.0f;
+                angleY = -angleY - (float)Math.PI / 2.0f;
             else
-                angleY = -angleY + (float) Math.PI/2.0f;
+                angleY = -angleY + (float)Math.PI / 2.0f;
             Angles = new Vector3(Angles.X, angleY, Angles.Z);
         }
 

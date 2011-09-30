@@ -37,7 +37,7 @@ namespace Game3
         [XmlIgnore]
         public SpriteFont Font;
         [XmlIgnore]
-        public SoundEffect Shotgun;
+        public SoundEffect Shotgun, Ghost;
         #endregion
 
         #region Сериализация
@@ -79,6 +79,7 @@ namespace Game3
 
             //Загрузка звуков
             workarea.Shotgun = Content.Load<SoundEffect>("Sounds/shotgun");
+            workarea.Ghost = Content.Load<SoundEffect>("Sounds/ghostly1");
 
             Current = workarea;
 
