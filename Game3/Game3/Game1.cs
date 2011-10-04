@@ -63,8 +63,8 @@ namespace Game3
             workarea.Settings = settings;
             workarea.Game = this;
 
-            //map = Map.Load("Maps\\City.xml", workarea);
-            map = Map.Load("Maps\\Cemetery.xml", workarea);
+            map = Map.Load("Maps\\City.xml", workarea);
+            //map = Map.Load("Maps\\Cemetery.xml", workarea);
             gameMap=new GameMap(this, map);
             gameMap.LoadContent(Content);
 

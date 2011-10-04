@@ -24,6 +24,11 @@ namespace Game3
         }
         #endregion
 
+        /// <summary>
+        /// Величина эпсилон для операций с плавающей точкой (сравнение вещественных чисел и т.д.)
+        /// </summary>
+        public static readonly float Eps = 0.001f;
+
         #region Ресурсы
         public List<UnitType> UnitTypes { get; set; }
         [XmlIgnore]

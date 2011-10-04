@@ -143,9 +143,7 @@ namespace CreateGameResources
             Map map = new Map(workarea)
             {
                 Name = "Город",
-                Width = 50,
-                Height = 50,
-                Depth = 10,
+                Sizes = new Vector3(50f,50f,50f),
                 Gravity = new Vector3(0f, -9.8f, 0f),
 
                 FogEnabled = true,
@@ -156,13 +154,13 @@ namespace CreateGameResources
                 EnableDefaultLighting = true
             };
 
-            map.Heightmap = new float[(int)(map.Width + 1) * (int)(map.Height + 1)];
+            map.Heightmap = new float[(int)(map.Sizes.X + 1) * (int)(map.Sizes.Y + 1)];
             Random r = new Random();
-            for (int i = 0; i < (map.Width + 1) * (map.Height + 1); i++)
+            for (int i = 0; i < (map.Sizes.X + 1) * (map.Sizes.Y + 1); i++)
             {
                 map.Heightmap[i] = r.Next(3) / 10.0f;
             }
-            //map.PickUpLandscape((int)map.Width / 2, (int)map.Height / 2, 5f);
+            map.PickUpLandscape(map.Sizes/2, 2f);
             
             map.Units.Add(new Unit("PLANE1", map)
             {
@@ -186,9 +184,7 @@ namespace CreateGameResources
             Map map = new Map(workarea)
             {
                 Name = "Кладбище",
-                Width = 50,
-                Height = 50,
-                Depth = 10,
+                Sizes = new Vector3(50f,50f,50f),
                 Gravity = new Vector3(0f, -5f, 0f),
 
                 FogEnabled = true,
@@ -202,9 +198,9 @@ namespace CreateGameResources
                 DirectionalLight0 = new MapLight { DiffuseColor = Color.Red.ToVector3(), Direction = Vector3.One, Enabled = true, SpecularColor = Color.Red.ToVector3() }
             };
 
-            map.Heightmap = new float[(int)(map.Width + 1) * (int)(map.Height + 1)];
+            map.Heightmap = new float[(int)(map.Sizes.X + 1) * (int)(map.Sizes.Y + 1)];
             Random r = new Random();
-            for (int i = 0; i < (map.Width + 1) * (map.Height + 1); i++)
+            for (int i = 0; i < (map.Sizes.X + 1) * (map.Sizes.Y + 1); i++)
             {
                 map.Heightmap[i] = r.Next(3) / 10.0f;
             }
@@ -247,7 +243,7 @@ namespace CreateGameResources
                 {
                     Name = "Призрак"+i,
                     Fraction = 2,
-                    Position = new Vector3((float)r.NextDouble()*map.Width, (float)r.NextDouble()*5f, (float)r.NextDouble()*map.Height)
+                    Position = new Vector3((float)r.NextDouble() * map.Sizes.X, (float)r.NextDouble() * 5f, (float)r.NextDouble() * map.Sizes.Y)
                 });
             }
             

@@ -23,8 +23,8 @@ namespace Game3.Components
         {
             _game = game;
             _map = map;
-            _width =(int) map.Width + 1;
-            _height = (int)map.Height + 1;
+            _width =(int) map.Sizes.X + 1;
+            _height = (int)map.Sizes.Y + 1;
             _basicEffect = new BasicEffect(game.GraphicsDevice)
                                             {
                                                 FogEnabled = map.FogEnabled,
@@ -74,8 +74,8 @@ namespace Game3.Components
                 for (int j = 0; j < _height; j++)
                 {
                     int index = i * _width + j;
-                    //_vertices[index].Position = new Vector3(i, _map.Heightmap[index], j);
-                    _vertices[index].Position = new Vector3(i, _map.GetHeight(i, j), j);
+                    _vertices[index].Position = new Vector3(i, _map[i,j], j);
+                    //_vertices[index].Position = new Vector3(i, _map.GetHeight(new Vector3(i,0f,j)), j);
                     _vertices[index].TextureCoordinate = new Vector2((float)i / 4f, (float)j / 4f);
                 }
             }

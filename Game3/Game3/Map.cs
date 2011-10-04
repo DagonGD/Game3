@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 
@@ -60,12 +61,8 @@ namespace Game3
         #region Свойства
         /// <summary>название зоны</summary>
         public string Name { get; set; }
-        /// <summary>Ширина карты</summary>
-        public float Width { get; set; }
-        /// <summary>Высота карты</summary>
-        public float Height { get; set; }
-        /// <summary>Глубина карты</summary>
-        public float Depth { get; set; }
+        /// <summary>Размеры карты</summary>
+        public Vector3 Sizes { get; set; }
         /// <summary>Гравитация на карте (обычно -9.8f)</summary>
         public Vector3 Gravity { get; set; }
         /// <summary>Юниты на карте</summary>
@@ -90,8 +87,6 @@ namespace Game3
         public Workarea Workarea;
         /// <summary>Карта высот</summary>
         public float[] Heightmap;
-
-        
         #endregion
 
         #region Методы
@@ -116,6 +111,90 @@ namespace Game3
             }
         }
 
+        public override string ToString() { return Name; }
+        #endregion
+
+        #region Карта высот
+        public float this[int i, int j]
+        {
+            get
+            {
+                int index = i * (int)Sizes.X + j;
+                return Heightmap[index];
+            }
+            set
+            {
+                int index = i * (int)Sizes.Y + j;
+                Heightmap[index] = value;
+            }
+        }
+
+        /// <summary>
+        /// Получение высоты в точке с заданными координатами
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        public float GetHeight(Vector3 position)
+        {
+            if (position.X < 0 || position.X > Sizes.X || position.Z < 0 || position.Z > Sizes.Y)
+                return float.MinValue;
+
+            //Интерполяция
+            int i = (int)position.X;
+            int j = (int)position.Z;
+
+            Vector3 v1 = new Vector3(i, this[i, j], j);
+            Vector3 v2 = new Vector3(i + 1, this[i + 1, j], j);
+            Vector3 v3 = new Vector3(i, this[i, j + 1], j + 1);
+            Vector3 v4 = new Vector3(i + 1, this[i + 1, j + 1], j + 1);
+
+            Vector3 vx1 = Vector3.Lerp(v1, v2, position.X - i);
+            Vector3 vx2 = Vector3.Lerp(v3, v4, position.X - i);
+
+            Vector3 res = Vector3.Lerp(vx1, vx2, position.Z - j);
+
+            //return this[i,j];
+            return res.Y;
+        }
+
+        /// <summary>
+        /// Поднять ландшафт в заданной точке и в соседних на заданную высоту
+        /// </summary>
+        /// <param name="pos">Координаты поднятия. Координата Y игнорируется</param>
+        /// <param name="height">На сколько поднять</param>
+        public void PickUpLandscape(Vector3 pos, float height)
+        {
+            int x = (int)pos.X;
+            int y = (int)pos.Z;
+
+            this[x, y] += height;
+            float radius = height*2f;
+
+            for (int i = 0; i < Sizes.X; i++)
+            {
+                for (int j = 0; j < Sizes.Z; j++)
+                {
+                    float dist = Math.Abs(Vector3.Distance(pos, new Vector3(i, pos.Y, j)));
+
+                    if (dist < Workarea.Eps || dist > radius)
+                        continue;
+
+                    this[i, j] += (float)(height / Math.Pow(dist, 1d / 2d));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Создание карты высот из картинки
+        /// </summary>
+        /// <param name="filename"></param>
+        public void CreateHightmapFromPicture(string filename)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        #region Пересечения
         /// <summary>
         /// Проверяет пересекает ли заданный юнит хотя бы один юнит на карте
         /// </summary>
@@ -142,54 +221,6 @@ namespace Game3
             }
             return ret;
         }
-
-        /// <summary>
-        /// Получение высоты в точке с заданными координатами
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        public float GetHeight(float x, float y)
-        {
-            if (x < 0 || x > Width || y < 0 || y > Height)
-                return float.MinValue;
-
-            return Heightmap[(int) (x*(Width+1) + y)];
-        }
-
-        public void SetHeight(float x,float y, float height)
-        {
-            if (x < 0 || x > Width  || y < 0 || y > Height )
-                return;
-
-            Heightmap[(int)(x * (Width + 1) + y)] = height;
-        }
-
-        /// <summary>
-        /// Поднять ландшафт в заданной точке и в соседних на заданную высоту
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="height"></param>
-        [Obsolete("Неправильно работает", true)]
-        public void PickUpLandscape(int x, int y, float height)
-        {
-            SetHeight(x, y, GetHeight(x, y) + height);
-
-            for (int i = 0; i < Width; i++)
-            {
-                for (int j = 0; j < Height; j++)
-                {
-                    if(i==x && j==y)
-                        continue;
-
-                    var dist = (float)(Math.Sqrt(Math.Pow(x - i, 2) + Math.Pow(y - j, 2)));
-                    SetHeight(i, j, GetHeight(i, j) + height/dist);
-                }
-            }
-        }
-
-        public override string ToString() { return Name; }
         #endregion
     }
 }

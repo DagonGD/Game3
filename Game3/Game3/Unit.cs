@@ -66,7 +66,7 @@ namespace Game3
         public readonly Vector3 JumpAcceleration = new Vector3(0f, 3f, 0f);
         public const float MaxSafeAcceleration = -4f;
         public const float GravitationalDamage = 1f;
-        public const float Eps = 0.001f;
+        
         public Vector3 Impulse { get; set; }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Game3
                 if (IsOnGround())
                 {
                     //Удар об землю
-                    Position = new Vector3(Position.X, Map.GetHeight(Position.X, Position.Z), Position.Z);
+                    Position = new Vector3(Position.X, Map.GetHeight(Position), Position.Z);
                     if (Impulse.Y < MaxSafeAcceleration)
                         Health += Impulse.Y * GravitationalDamage;
                     Impulse = Vector3.Zero;
@@ -215,7 +215,7 @@ namespace Game3
         /// <param name="gameTime"></param>
         public virtual void Update(GameTime gameTime)
         {
-            if (Health < Eps)
+            if (Health < Workarea.Eps)
             {
                 State = 0;
                 Health = 0;
@@ -263,7 +263,7 @@ namespace Game3
         /// <returns></returns>
         public bool IsOnGround()
         {
-            return Position.Y < Map.GetHeight(Position.X, Position.Z) + Eps;
+            return Position.Y < Map.GetHeight(Position) + Workarea.Eps;
         }
 
         /// <summary>
